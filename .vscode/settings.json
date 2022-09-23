@@ -1,0 +1,12 @@
+{
+  "eslint.validate": [
+    "html",
+    "javascript"
+  ],
+  "search.exclude": {
+    "**/package-lock.json": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  }
+}

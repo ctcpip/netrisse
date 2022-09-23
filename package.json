@@ -1,0 +1,27 @@
+{
+  "name": "netris-js",
+  "description": "a network version of tetris for the console/terminal",
+  "version": "0.1.0",
+  "main": "netris.js",
+  "dependencies": {
+    "mersenne-twister": "^1.1.0",
+    "rfdc": "^1.3.0",
+    "terminal-kit": "^3.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctcpip/netris-js.git"
+  },
+  "author": "Chris de Almeida",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/ctcpip/netris-js/issues"
+  },
+  "homepage": "https://github.com/ctcpip/netris-js#readme",
+  "devDependencies": {
+    "eslint": "^8.23.1"
+  }
+}
