@@ -1,7 +1,8 @@
 module.exports = class Game {
 
-  constructor(interval) {
+  constructor(interval, algorithm) {
     this.interval = interval;
+    this.algorithm = algorithm;
   }
 
 };

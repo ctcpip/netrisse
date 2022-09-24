@@ -1,6 +1,5 @@
 const { shapes } = require('./shapes');
 const clone = require('rfdc')();
-const { getRandomNumber } = require('./random');
 const directions = require('./directions');
 
 module.exports = class Shape {
@@ -18,34 +17,47 @@ module.exports = class Shape {
     this.board = board;
 
     // const randomShape = shapes[3]; // eslint-disable-line
-    const randomShape = shapes[getRandomNumber(shapes.length)];
+    const randomShape = shapes[this.board.algorithm.next().value];
     this.color = randomShape.color;
     this.points = randomShape.points;
+
+    this.setInitialPosition();
+    this.draw();
+    this.screen.render();
+
+  }
+
+  drawShapePoint(p, i, clear) {
+
+    // don't draw if point is outside of bounds
+    if (p[1] > this.board.top) {
+
+      if (clear) {
+        this.screen.d(...p, ' ');
+      }
+      else {
+
+        const content = i % 2 === 0 ? '[' : ']';
+
+        if (this.screen.colorEnabled) {
+          this.screen.d(...p, content, { color: 'black', bgColor: this.color });
+        }
+        else {
+          this.screen.put({ x: p[0], y: p[1], attr: { inverse: true } }, content);
+        }
+
+      }
+
+    }
+
+    this.board.setIndicator(p[0], clear);
 
   }
 
   draw(clear) {
     for (let i = 0; i < this.currentPoints.length; i++) {
       const p = this.currentPoints[i];
-
-      // don't draw if point is outside of bounds
-      if (p[1] > this.board.top) {
-
-        const content = i % 2 === 0 ? '[' : ']';
-
-        if (clear) {
-          this.screen.d(...p, ' ');
-        }
-        else if (this.screen.colorEnabled) {
-          this.screen.d(...p, content, { color: 'black', bgColor: this.color });
-        }
-        else {
-          this.screen.screen.put({ x: p[0], y: p[1], attr: { inverse: true } }, content);
-        }
-      }
-
-      this.board.setIndicator(p[0], clear);
-
+      this.drawShapePoint(p, i, clear);
     }
   }
 
@@ -96,7 +108,7 @@ module.exports = class Shape {
             return p;
           });
 
-          if (newShapePoints.some(p => this.isPointOccupied(p) || p[1] >= this.board.bottom)) {
+          if (newShapePoints.some(p => this.board.isPointOccupied(p) || p[1] >= this.board.bottom)) {
 
             canMove = false;
 
@@ -128,7 +140,7 @@ module.exports = class Shape {
           return p;
         });
 
-        if (newShapePoints.some(p => this.isPointOccupied(p) || p[0] < this.board.left)) {
+        if (newShapePoints.some(p => this.board.isPointOccupied(p) || p[0] < this.board.left)) {
           canMove = false;
         }
         else {
@@ -142,7 +154,7 @@ module.exports = class Shape {
           return p;
         });
 
-        if (newShapePoints.some(p => this.isPointOccupied(p) || p[0] > this.board.right)) {
+        if (newShapePoints.some(p => this.board.isPointOccupied(p) || p[0] > this.board.right)) {
           canMove = false;
         }
         else {
@@ -219,8 +231,6 @@ module.exports = class Shape {
 
           const sp = this.screen.get({ x: p[0], y: p[1] });
 
-          console.log(`yee: ${JSON.stringify(sp)}`);
-
           erasePoints.push([p[0], p[1]]);
 
           p[1] += linesCleared; // update the point location
@@ -230,7 +240,7 @@ module.exports = class Shape {
         }
 
         for (const ep of erasePoints) {
-          if (!this.isPointOccupied(ep)) {
+          if (!this.board.isPointOccupied(ep)) {
             this.screen.d(...ep, ' '); // erase the point
           }
         }
@@ -255,14 +265,6 @@ module.exports = class Shape {
 
     }
 
-  }
-
-  isPointOccupied(p) {
-    for (const op of this.board.occupiedPoints) {
-      if (op[0] === p[0] && op[1] === p[1]) { return true; }
-    }
-
-    return false;
   }
 
 };

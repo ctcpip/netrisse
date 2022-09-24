@@ -4,12 +4,13 @@ const Board = require('./board');
 const Screen = require('./screen');
 const Game = require('./game');
 const directions = require('./directions');
+const algorithms = require('./algorithms');
 
 const colorEnabled = true;
 const interval = 0.5 * 1000;
 
 const screen = new Screen(colorEnabled);
-const game = new Game(interval);
+const game = new Game(interval, algorithms.frustrationFree);
 const board = new Board(2, 21, 23, 0, screen, game);
 
 function quit() {

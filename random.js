@@ -9,4 +9,8 @@ function getRandomNumber(max) {
   return Math.floor(rng.random() * max);
 }
 
-module.exports = { getRandomNumber };
+function random() {
+  return rng.random();
+}
+
+module.exports = { getRandomNumber, rngRandom: random };

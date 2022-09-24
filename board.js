@@ -14,6 +14,7 @@ module.exports = class Board {
     this.left = left;
     this.screen = screen;
     this.game = game;
+    this.algorithm = game.algorithm();
     this.draw();
     this.startNewShape();
   }
@@ -48,14 +49,19 @@ module.exports = class Board {
   startNewShape() {
     this.drawBottomBorder(); // reset bottom border indicator
     this.currentShape = new Shape(this.screen, this);
-    this.currentShape.setInitialPosition();
-    this.currentShape.draw();
-    this.screen.render();
     this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
   }
 
   moveShapeAutomatically() {
     this.currentShape.move(directions.AUTO);
+  }
+
+  isPointOccupied(p) {
+    for (const op of this.occupiedPoints) {
+      if (op[0] === p[0] && op[1] === p[1]) { return true; }
+    }
+
+    return false;
   }
 
 };
