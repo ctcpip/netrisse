@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+
 const { shapes } = require('./shapes');
 const clone = require('rfdc')();
 const directions = require('./directions');
@@ -89,10 +91,23 @@ module.exports = class Shape {
 
   move(direction) { // eslint-disable-line complexity
 
+    this.board.moves.push(direction);
+
+    if (this.board.gameOver) {
+      return;
+    }
+
+    if (this.board.concurrentExecutions > 0) {
+      throw new Error('somehow got a race condition... must implement mutex');
+    }
+
+    this.board.concurrentExecutions += 1;
+
     let newShapePoints = clone(this.currentPoints);
 
     let lockShape = false;
     let canMove = true;
+    let gameOver = false;
 
     const offset = [0, 0];
 
@@ -113,8 +128,14 @@ module.exports = class Shape {
             canMove = false;
 
             if (direction === directions.AUTO) {
-            // don't lock if the down direction was user input, only lock when auto-move activated
+              // don't lock if the down direction was user input, only lock when auto-move activated
               lockShape = true;
+
+              // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
+              if (Math.min(...this.currentPoints.map(p => p[1])) <= this.board.top) { // eslint-disable-line max-depth
+                gameOver = true;
+              }
+
             }
 
           }
@@ -178,7 +199,12 @@ module.exports = class Shape {
             p[1] += this.offset[1];
           }
 
-          canMove = newShapePoints.every(p => p[0] >= this.board.left && p[0] <= this.board.right && p[1] < this.board.bottom);
+          if (newShapePoints.some(p => this.board.isPointOccupied(p))) {
+            canMove = false;
+          }
+          else {
+            canMove = newShapePoints.every(p => p[0] >= this.board.left && p[0] <= this.board.right && p[1] < this.board.bottom);
+          }
 
           if (canMove) {
             this.direction = newSelectedPoints;
@@ -194,62 +220,7 @@ module.exports = class Shape {
     }
 
     if (lockShape) {
-      this.board.occupiedPoints.push(...this.currentPoints);
-
-      // get the Y's of current points (only need to check these y lines are full)
-      const ys = this.currentPoints.map(p => p[1]);
-
-      let highestClearedY = 64; // technically it's the _lowest_ number on the plane
-      let linesCleared = 0;
-
-      for (const y of ys) {
-
-        const linePoints = this.board.occupiedPoints.filter(op => op[1] === y);
-
-        if (linePoints.length === 20) {
-          // line is full; clear it
-          for (const p of linePoints) {
-            this.screen.d(...p, ' ');
-          }
-
-          // remove from occupiedPoints array
-          this.board.occupiedPoints = this.board.occupiedPoints.filter(op => op[1] !== y);
-
-          highestClearedY = Math.min(highestClearedY, y);
-          linesCleared += 1;
-
-        }
-
-      }
-
-      const erasePoints = [];
-
-      if (linesCleared > 0) {
-        // move lines above cleared lines down by num of cleared lines, point by point
-
-        for (const p of this.board.occupiedPoints.filter(op => op[1] < highestClearedY)) {
-
-          const sp = this.screen.get({ x: p[0], y: p[1] });
-
-          erasePoints.push([p[0], p[1]]);
-
-          p[1] += linesCleared; // update the point location
-
-          this.screen.put({ x: p[0], y: p[1], attr: sp.attr }, sp.char); // draw the point in its new location
-
-        }
-
-        for (const ep of erasePoints) {
-          if (!this.board.isPointOccupied(ep)) {
-            this.screen.d(...ep, ' '); // erase the point
-          }
-        }
-
-        this.screen.render();
-
-      }
-
-      this.board.startNewShape();
+      this.board.lockShape(gameOver);
     }
     else if (canMove) {
       this.draw(true);
@@ -265,6 +236,9 @@ module.exports = class Shape {
 
     }
 
+    this.board.concurrentExecutions -= 1;
+
   }
 
 };
+

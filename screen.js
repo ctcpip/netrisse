@@ -1,12 +1,16 @@
 const termkit = require('terminal-kit');
+const { seed } = require('./random');
 
 module.exports = class Screen {
 
-  constructor(colorEnabled) {
+  constructor(colorEnabled, interval) {
 
     this.colorEnabled = colorEnabled;
     this.term = termkit.terminal;
+    this.term.windowTitle('Netris JS');
     this.screen = new termkit.ScreenBuffer({ dst: this.term, noFill: true });
+    this.seed = seed;
+    this.interval = interval;
 
     this.term.hideCursor();
 
@@ -20,6 +24,12 @@ module.exports = class Screen {
     this.d(0, 0, 'Netris JS 0.1.0 (C) 2022  Chris de Almeida         "netris -h" for more info');
 
     this.term.grabInput();
+
+    this.d(24, 13, `Seed:  ${this.seed}`);
+    this.d(24, 14, `Speed: ${this.interval}ms`);
+
+    this.displayTime();
+    this.timeDisplayTimeout = setTimeout(this.displayTime.bind(this), 1000);
 
   }
 
@@ -47,6 +57,22 @@ module.exports = class Screen {
 
   put(...args) {
     this.screen.put(...args);
+  }
+
+  displayTime() {
+
+    const date = new Date();
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    };
+    const time = new Intl.DateTimeFormat('en', options).format(date);
+
+    this.d(24, 22, time);
+
+    this.render();
+
   }
 
 };

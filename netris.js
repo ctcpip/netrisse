@@ -9,16 +9,23 @@ const algorithms = require('./algorithms');
 const colorEnabled = true;
 const interval = 0.5 * 1000;
 
-const screen = new Screen(colorEnabled);
+const screen = new Screen(colorEnabled, interval);
 const game = new Game(interval, algorithms.frustrationFree);
 const board = new Board(2, 21, 23, 0, screen, game);
 
 function quit() {
   clearTimeout(board.currentTimeout);
+  clearTimeout(screen.timeDisplayTimeout);
   screen.term.grabInput(false);
   screen.term.moveTo(board.left + 1, board.bottom + 1);
   screen.term.eraseLine();
   screen.term.hideCursor(false);
+  // writeDebugInfo();
+}
+
+function writeDebugInfo() { // eslint-disable-line no-unused-vars
+  console.log(`seed: ${screen.seed}`);
+  console.log(JSON.stringify(board.moves));
 }
 
 screen.term.on('key', name => { // eslint-disable-line complexity
