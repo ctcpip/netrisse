@@ -1,5 +1,6 @@
 const termkit = require('terminal-kit');
 const { seed } = require('./random');
+const packageJSON = require('./package.json');
 
 module.exports = class Screen {
 
@@ -21,7 +22,7 @@ module.exports = class Screen {
       this.screen.fill({ attr: { bgDefaultColor: true } });
     }
 
-    this.d(0, 0, 'Netris JS 0.1.0 (C) 2022  Chris de Almeida         "netris -h" for more info');
+    this.d(0, 0, `Netris JS ${packageJSON.version} (C) 2022  Chris de Almeida         "netris -h" for more info`);
 
     this.term.grabInput();
 

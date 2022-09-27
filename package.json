@@ -1,8 +1,12 @@
 {
   "name": "netris-js",
   "description": "a network version of tetris for the console/terminal",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "netris.js",
+  "bin": {
+    "netris-js": "./netris.js",
+    "netrisjs": "./netris.js"
+  },
   "dependencies": {
     "mersenne-twister": "^1.1.0",
     "terminal-kit": "^3.0.0"
@@ -22,5 +26,8 @@
   "homepage": "https://github.com/ctcpip/netris-js#readme",
   "devDependencies": {
     "eslint": "^8.23.1"
+  },
+  "pkg": {
+    "assets": "node_modules/terminal-kit/**/*"
   }
 }
