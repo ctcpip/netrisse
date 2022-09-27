@@ -1,8 +1,8 @@
-# Netris JS
+# Netrisse
 
 a network version of tetris for the console/terminal
 
-![Netris JS](https://user-images.githubusercontent.com/15326526/192441657-521cf579-a18e-4a0b-907c-aa47dc6d89a3.gif)
+![Netrisse](https://user-images.githubusercontent.com/15326526/192441657-521cf579-a18e-4a0b-907c-aa47dc6d89a3.gif)
 
 ## roadmap
 
@@ -12,7 +12,7 @@ a network version of tetris for the console/terminal
 
 ## inspiration
 
-Netris JS is an enhanced reverse-engineered clone of __[netris](https://web.archive.org/web/20070215202226/http://portsmon.freebsd.org/portoverview.py?category=games&portname=netris)__, itself a clone of tetris.
+Netrisse is an enhanced reverse-engineered clone of __[netris](https://web.archive.org/web/20070215202226/http://portsmon.freebsd.org/portoverview.py?category=games&portname=netris)__, itself a clone of tetris.
 
 ## stuff nobody cares about
 

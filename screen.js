@@ -8,7 +8,7 @@ module.exports = class Screen {
 
     this.colorEnabled = colorEnabled;
     this.term = termkit.terminal;
-    this.term.windowTitle('Netris JS');
+    this.term.windowTitle('Netrisse');
     this.screen = new termkit.ScreenBuffer({ dst: this.term, noFill: true });
     this.seed = seed;
     this.interval = interval;
@@ -22,7 +22,7 @@ module.exports = class Screen {
       this.screen.fill({ attr: { bgDefaultColor: true } });
     }
 
-    this.d(0, 0, `Netris JS ${packageJSON.version} (C) 2022  Chris de Almeida         "netris -h" for more info`);
+    this.d(0, 0, `Netrisse ${packageJSON.version} (C) 2022  Chris de Almeida           "netrisse -h" for more info`);
 
     this.term.grabInput();
 

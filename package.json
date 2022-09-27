@@ -1,11 +1,10 @@
 {
-  "name": "netris-js",
+  "name": "netrisse",
   "description": "a network version of tetris for the console/terminal",
   "version": "1.0.0",
-  "main": "netris.js",
+  "main": "netrisse.js",
   "bin": {
-    "netris-js": "./netris.js",
-    "netrisjs": "./netris.js"
+    "netrisse": "./netrisse.js"
   },
   "dependencies": {
     "mersenne-twister": "^1.1.0",
@@ -16,18 +15,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ctcpip/netris-js.git"
+    "url": "git+https://github.com/ctcpip/netrisse.git"
   },
   "author": "Chris de Almeida",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/ctcpip/netris-js/issues"
+    "url": "https://github.com/ctcpip/netrisse/issues"
   },
-  "homepage": "https://github.com/ctcpip/netris-js#readme",
+  "homepage": "https://github.com/ctcpip/netrisse#readme",
   "devDependencies": {
     "eslint": "^8.23.1"
   },
   "pkg": {
     "assets": "node_modules/terminal-kit/**/*"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
