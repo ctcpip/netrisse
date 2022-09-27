@@ -169,6 +169,8 @@ module.exports = class Shape {
         {
           const downDropPositionData = this.getDownDropGhostPositions();
 
+          ({ canMove } = downDropPositionData);
+
           if (direction === directions.DROP) {
             newShapePoints = downDropPositionData.dropGhostShapePoints;
           }
@@ -176,7 +178,7 @@ module.exports = class Shape {
             ({ newShapePoints } = downDropPositionData);
           }
 
-          if (downDropPositionData.canMove) {
+          if (canMove) {
 
             if (direction === directions.DROP) {
               offset[1] = downDropPositionData.dropGhostOffsetY;
@@ -186,8 +188,8 @@ module.exports = class Shape {
             }
 
           }
-          else if (direction === directions.AUTO) {
-            // don't lock if the down direction was user input, only lock when auto-move activated
+          else if (direction === directions.AUTO || direction === directions.DROP) {
+            // only lock when auto-moved or dropped
             lockShape = true;
 
             // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
@@ -278,8 +280,19 @@ module.exports = class Shape {
       this.draw();
       this.screen.render();
 
-      if (direction === directions.AUTO) {
-        this.board.currentTimeout = setTimeout(this.board.moveShapeAutomatically.bind(this.board), this.board.game.interval);
+      switch (direction) {
+        case directions.DOWN:
+          // if shape was manually moved down, reset the automatic down timer.
+          // this prevents automatically locking the shape immediately after
+          // moving down to touch the bottom or another shape, giving the player
+          // the normal amount of time to rotate or move the piece before it locks
+          clearTimeout(this.board.currentTimeout);
+          // fall through to start a new timeout
+        case directions.AUTO:
+          this.board.currentTimeout = setTimeout(this.board.moveShapeAutomatically.bind(this.board), this.board.game.interval);
+          break;
+        default:
+          break;
       }
 
     }
