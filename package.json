@@ -1,7 +1,7 @@
 {
   "name": "netrisse",
   "description": "a network version of tetris for the console/terminal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "netrisse.js",
   "bin": {
     "netrisse": "./netrisse.js"
