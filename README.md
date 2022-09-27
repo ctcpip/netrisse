@@ -2,7 +2,7 @@
 
 a network version of tetris for the console/terminal
 
-![Netrisse](https://user-images.githubusercontent.com/15326526/192441657-521cf579-a18e-4a0b-907c-aa47dc6d89a3.gif)
+![Netrisse](https://user-images.githubusercontent.com/15326526/192656891-5b5fe96a-0ece-4730-a5a7-5b52dc750595.gif)
 
 ## roadmap
 
@@ -19,8 +19,10 @@ Netrisse is an enhanced reverse-engineered clone of __[netris](https://web.archi
 this project uses...
 
 * [Terminal Kit](https://github.com/cronvel/terminal-kit)
-* [semantic versioning](http://semver.org/)
+* [Mersenne Twister](https://github.com/boo1ean/mersenne-twister)
+* [ESLint](https://github.com/eslint/eslint)
+* [semantic versioning](https://semver.org/)
 
 ## license
 
-[GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html)
+[GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
