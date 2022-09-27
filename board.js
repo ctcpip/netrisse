@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+const { shapes } = require('./shapes');
 const Shape = require('./shape');
 const directions = require('./directions');
 
@@ -9,6 +11,8 @@ module.exports = class Board {
   concurrentExecutions = 0;
   moves = [];
   replay = false; // used for debugging,
+  heldShape;
+  nextShapeType = null;
 
   constructor(top, right, bottom, left, screen, game) {
     this.top = top;
@@ -21,6 +25,17 @@ module.exports = class Board {
     this.score = 0n;
     this.linesCleared = 0;
     this.gameOver = false;
+
+    this.nextBox = {};
+    this.nextBox.top = this.top;
+    this.nextBox.left = this.right + 2;
+    this.nextBox.right = this.nextBox.left + 11;
+    this.nextBox.bottom = this.nextBox.top + 5;
+
+    this.holdBox = structuredClone(this.nextBox);
+    this.holdBox.top = this.holdBox.bottom + 1;
+    this.holdBox.bottom = this.holdBox.top + 5;
+
     this.draw();
     this.startNewShape();
 
@@ -36,28 +51,73 @@ module.exports = class Board {
 
   }
 
-  topAndBottomBorder = '+--------------------+';
+  topBorder = '┏━━━━━━━━━━━━━━━━━━━━┓';
+  bottomBorder = '┗━━━━━━━━━━━━━━━━━━━━┛';
+  heldShapeTopBorder = '┏━━━━━━━━━━┓';
+  heldShapeBottomBorder = '┗━━━━━━━━━━┛';
 
-  draw() {
+  drawBoard() {
 
-    this.screen.d(this.left, this.top, this.topAndBottomBorder);
+    this.screen.d(this.left, this.top, this.topBorder);
 
     for (let i = this.top + 1; i < this.bottom; i++) {
-      this.screen.d(this.left, i, '|');
+      this.screen.d(this.left, i, '┃');
     }
 
     for (let i = this.top + 1; i < this.bottom; i++) {
-      this.screen.d(this.right, i, '|');
+      this.screen.d(this.right, i, '┃');
     }
 
     this.drawBottomBorder();
-    this.drawScore();
 
+  }
+
+  drawNextBox() {
+
+    this.screen.d(this.nextBox.left, this.nextBox.top, this.heldShapeTopBorder);
+
+    this.screen.d(this.nextBox.left + 4, this.nextBox.top + 1, 'NEXT');
+
+    for (let i = this.nextBox.top + 1; i < this.nextBox.bottom; i++) {
+      this.screen.d(this.nextBox.left, i, '┃');
+    }
+
+    for (let i = this.nextBox.top + 1; i < this.nextBox.bottom; i++) {
+      this.screen.d(this.nextBox.right, i, '┃');
+    }
+
+    this.screen.d(this.nextBox.left, this.nextBox.bottom, this.heldShapeBottomBorder);
+
+  }
+
+  drawHoldBox() {
+
+    this.screen.d(this.holdBox.left, this.holdBox.top, this.heldShapeTopBorder);
+
+    this.screen.d(this.holdBox.left + 4, this.holdBox.top + 1, 'HOLD');
+
+    for (let i = this.holdBox.top + 1; i < this.holdBox.bottom; i++) {
+      this.screen.d(this.holdBox.left, i, '┃');
+    }
+
+    for (let i = this.holdBox.top + 1; i < this.holdBox.bottom; i++) {
+      this.screen.d(this.holdBox.right, i, '┃');
+    }
+
+    this.screen.d(this.holdBox.left, this.holdBox.bottom, this.heldShapeBottomBorder);
+
+  }
+
+  draw() {
+    this.drawBoard();
+    this.drawNextBox();
+    this.drawHoldBox();
+    this.drawScore();
     this.screen.render();
   }
 
   drawBottomBorder() {
-    this.screen.d(this.left, this.bottom, this.topAndBottomBorder);
+    this.screen.d(this.left, this.bottom, this.bottomBorder);
   }
 
   drawGameOver() {
@@ -83,8 +143,8 @@ module.exports = class Board {
   }
 
   drawScore() {
-    this.screen.d(this.right + 3, this.bottom - 6, `Score: ${this.score}`);
-    this.screen.d(this.right + 3, this.bottom - 5, `Lines: ${this.linesCleared}`);
+    this.screen.d(this.right + 3, 15, `Score: ${this.score}`);
+    this.screen.d(this.right + 3, 16, `Lines: ${this.linesCleared}`);
   }
 
   addScore(linesCleared) {
@@ -94,13 +154,30 @@ module.exports = class Board {
   }
 
   setIndicator(x, clear) {
-    this.screen.d(x, this.bottom, clear ? '-' : '=');
+    this.screen.d(x, this.bottom, clear ? '━' : '=');
   }
 
   startNewShape() {
+
     this.drawBottomBorder(); // reset bottom border indicator
-    this.currentShape = new Shape(this.screen, this);
+
+    let newShapeType;
+
+    if (this.nextShapeType === null) {
+      newShapeType = this.algorithm.next().value;
+    }
+    else {
+      newShapeType = this.nextShapeType;
+      this.drawHeldShape(this.nextShapeType, true, false);
+    }
+
+    this.nextShapeType = this.algorithm.next().value;
+    this.currentShape = Shape.createNewShape(this.screen, this, newShapeType);
     this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+
+    this.drawHeldShape(this.nextShapeType, false, false);
+    this.screen.render();
+
   }
 
   moveShapeAutomatically() {
@@ -197,6 +274,145 @@ module.exports = class Board {
   }
 
   factorial(n) { return !(n > 1) ? 1 : this.factorial(n - 1) * n; } // eslint-disable-line no-negated-condition
+
+  pause() {
+
+    const txtPaused = 'Game paused by you';
+
+    if (this.game.paused) {
+      clearTimeout(this.currentTimeout);
+      this.screen.d(24, 21, txtPaused);
+    }
+    else {
+
+      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+
+      for (let i = 0; i < txtPaused.length; i++) {
+        this.screen.d(24 + i, 21, ' ');
+      }
+
+    }
+
+    this.screen.render();
+
+  }
+
+  holdShape() {
+
+    if (this.currentShape.held || this.game.paused) {
+      // current shape cannot be held more than once
+      return;
+    }
+
+    clearTimeout(this.currentTimeout);
+
+    let copyHeldShape;
+
+    if (this.heldShape) {
+      copyHeldShape = new Shape(this.screen, this, this.heldShape.shapeType); // copy the existing heldShape before we reassign
+      copyHeldShape.held = true;
+      this.drawHeldShape(this.heldShape.shapeType, true, true); // clear out the existing held shape in the box
+    }
+
+    // hold the current shape
+    this.currentShape.held = true;
+    this.heldShape = this.currentShape;
+
+    // remove current shape from board
+    this.currentShape.drawGhost(true);
+    this.currentShape.draw(true);
+
+    // release the currently held shape if it exists, otherwise start a new shape
+    if (copyHeldShape) {
+
+      this.drawBottomBorder(); // reset bottom border indicator
+
+      this.currentShape = copyHeldShape;
+      this.currentShape.direction = 0;
+      this.currentShape.offset = [0, 0];
+      this.currentShape.setInitialPosition();
+      this.currentShape.draw();
+      this.currentShape.drawGhost();
+
+      this.screen.render();
+
+      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+
+    }
+    else {
+      this.startNewShape();
+    }
+
+    this.drawHeldShape(this.heldShape.shapeType, false, true);
+    this.screen.render();
+
+  }
+
+  drawHeldShape(shapeType, clear, isHold) {
+
+    const s = shapes[shapeType];
+
+    // get starting points for the shape
+    const [points] = structuredClone(s.points);
+
+    let offsetX, boxOffsetX, boxOffsetY;
+
+    switch (shapeType) {
+      case 0: // should really change this to use an enum instead of array index...
+        // if it's the I shape, shift 1 to the left
+        offsetX = -1;
+        break;
+      case 3:
+        // if it's the O shape, shift 1 to the right
+        offsetX = 1;
+        break;
+      default:
+        offsetX = 0;
+        break;
+    }
+
+    if (isHold) {
+      boxOffsetX = this.holdBox.left;
+      boxOffsetY = this.holdBox.top;
+    }
+    else {
+      boxOffsetX = this.nextBox.left;
+      boxOffsetY = this.nextBox.top;
+    }
+
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      p[0] += boxOffsetX + 6 + offsetX;
+      p[1] += boxOffsetY + 3;
+      this.drawShapePoint(p, i, clear, s.color);
+    }
+
+  }
+
+  drawShapePoint(p, i, clear, bgColor, color = 'black') {
+
+    // don't draw if point is outside of bounds
+    if (p[1] > this.top) {
+
+      if (clear) {
+        this.screen.d(...p, ' ');
+      }
+      else {
+
+        const content = i % 2 === 0 ? '[' : ']';
+
+        if (this.screen.colorEnabled) {
+          this.screen.d(...p, content, { color, bgColor });
+        }
+        else {
+          this.screen.put({ x: p[0], y: p[1], attr: { inverse: true } }, content);
+        }
+
+      }
+
+    }
+
+  }
 
 };
 

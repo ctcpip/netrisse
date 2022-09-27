@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 
 const { shapes } = require('./shapes');
-const clone = require('rfdc')();
 const directions = require('./directions');
 
 module.exports = class Shape {
@@ -12,60 +11,62 @@ module.exports = class Shape {
   offset = [0, 0]; // current offset
   points;
   screen;
+  held = false;
 
-  constructor(screen, board) {
-
+  constructor(screen, board, shapeType) {
     this.screen = screen;
     this.board = board;
-
-    // const randomShape = shapes[3]; // eslint-disable-line
-    const randomShape = shapes[this.board.algorithm.next().value];
-    this.color = randomShape.color;
-    this.points = randomShape.points;
-
-    this.setInitialPosition();
-    this.draw();
-    this.screen.render();
-
+    this.shapeType = shapeType;
+    Object.assign(this, shapes[shapeType]);
   }
 
-  drawShapePoint(p, i, clear) {
+  /**
+   * start a new random shape
+   */
+  static createNewShape(screen, board, shapeType) {
 
-    // don't draw if point is outside of bounds
-    if (p[1] > this.board.top) {
+    const s = new Shape(screen, board, shapeType);
 
-      if (clear) {
-        this.screen.d(...p, ' ');
-      }
-      else {
+    s.setInitialPosition();
+    s.draw();
+    s.drawGhost();
+    s.screen.render();
 
-        const content = i % 2 === 0 ? '[' : ']';
-
-        if (this.screen.colorEnabled) {
-          this.screen.d(...p, content, { color: 'black', bgColor: this.color });
-        }
-        else {
-          this.screen.put({ x: p[0], y: p[1], attr: { inverse: true } }, content);
-        }
-
-      }
-
-    }
-
-    this.board.setIndicator(p[0], clear);
+    return s;
 
   }
 
   draw(clear) {
+
     for (let i = 0; i < this.currentPoints.length; i++) {
       const p = this.currentPoints[i];
-      this.drawShapePoint(p, i, clear);
+      this.board.drawShapePoint(p, i, clear, this.color);
     }
+
+    const xPointsForIndicator = [...new Set(this.currentPoints.map(p => p[0]))];
+
+    for (const x of xPointsForIndicator) {
+      this.board.setIndicator(x, clear);
+    }
+
+  }
+
+  drawGhost(clear) {
+
+    const { canMove, dropGhostShapePoints } = this.getDownDropGhostPositions();
+
+    if (canMove || clear) {
+      for (let i = 0; i < dropGhostShapePoints.length; i++) {
+        const p = dropGhostShapePoints[i];
+        this.board.drawShapePoint(p, i, clear, this.ghostColor, 'black');
+      }
+    }
+
   }
 
   setInitialPosition() {
 
-    [this.currentPoints] = clone(this.points);
+    [this.currentPoints] = structuredClone(this.points);
 
     const x = ((this.board.right + 1) / 2) + 1; // eslint-disable-line no-extra-parens
 
@@ -89,13 +90,63 @@ module.exports = class Shape {
 
   }
 
+  getDownDropGhostPositions() {
+
+    let offsetY = 0;
+    let dropGhostOffsetY = 0;
+
+    const newShapePoints = structuredClone(this.currentPoints);
+
+    let canMove = true;
+    let returnCanMove = true;
+
+    newShapePoints.map(p => {
+      p[1] += 1;
+      return p;
+    });
+
+    if (newShapePoints.some(p => this.board.isPointOccupied(p) || p[1] >= this.board.bottom)) {
+      canMove = false;
+      returnCanMove = false;
+    }
+    else {
+      offsetY += 1;
+      dropGhostOffsetY += 1;
+    }
+
+    const dropGhostShapePoints = structuredClone(newShapePoints);
+
+    while (canMove) {
+      dropGhostShapePoints.map(p => {
+        p[1] += 1;
+        return p;
+      });
+
+      if (dropGhostShapePoints.some(p => this.board.isPointOccupied(p) || p[1] >= this.board.bottom)) {
+        canMove = false;
+      }
+      else {
+        dropGhostOffsetY += 1;
+      }
+    }
+
+    // if we are dropping, undo the last (failed) mutation of y values
+    dropGhostShapePoints.map(p => {
+      p[1] -= 1;
+      return p;
+    });
+
+    return { canMove: returnCanMove, newShapePoints, dropGhostShapePoints, offsetY, dropGhostOffsetY };
+
+  }
+
   move(direction) { // eslint-disable-line complexity
 
-    this.board.moves.push(direction);
-
-    if (this.board.gameOver) {
+    if (this.board.gameOver || this.board.game.paused) {
       return;
     }
+
+    this.board.moves.push(direction);
 
     if (this.board.concurrentExecutions > 0) {
       throw new Error('somehow got a race condition... must implement mutex');
@@ -103,7 +154,7 @@ module.exports = class Shape {
 
     this.board.concurrentExecutions += 1;
 
-    let newShapePoints = clone(this.currentPoints);
+    let newShapePoints = structuredClone(this.currentPoints);
 
     let lockShape = false;
     let canMove = true;
@@ -115,46 +166,41 @@ module.exports = class Shape {
       case directions.AUTO:
       case directions.DOWN:
       case directions.DROP:
+        {
+          const downDropPositionData = this.getDownDropGhostPositions();
 
-        do {
+          if (direction === directions.DROP) {
+            newShapePoints = downDropPositionData.dropGhostShapePoints;
+          }
+          else {
+            ({ newShapePoints } = downDropPositionData);
+          }
 
-          newShapePoints.map(p => {
-            p[1] += 1;
-            return p;
-          });
+          if (downDropPositionData.canMove) {
 
-          if (newShapePoints.some(p => this.board.isPointOccupied(p) || p[1] >= this.board.bottom)) {
-
-            canMove = false;
-
-            if (direction === directions.AUTO) {
-              // don't lock if the down direction was user input, only lock when auto-move activated
-              lockShape = true;
-
-              // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
-              if (Math.min(...this.currentPoints.map(p => p[1])) <= this.board.top) { // eslint-disable-line max-depth
-                gameOver = true;
-              }
-
+            if (direction === directions.DROP) {
+              offset[1] = downDropPositionData.dropGhostOffsetY;
+            }
+            else {
+              offset[1] = downDropPositionData.offsetY;
             }
 
           }
-          else {
-            offset[1] += 1;
+          else if (direction === directions.AUTO) {
+            // don't lock if the down direction was user input, only lock when auto-move activated
+            lockShape = true;
+
+            // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
+            if (Math.min(...this.currentPoints.map(p => p[1])) <= this.board.top) { // eslint-disable-line max-depth
+              gameOver = true;
+            }
+
           }
 
-        } while (direction === directions.DROP && canMove);
-
-        // if we are dropping, undo the last (failed) mutation of y values
-        if (direction === directions.DROP && !canMove) {
-          canMove = true;
-          newShapePoints.map(p => {
-            p[1] -= 1;
-            return p;
-          });
         }
 
         break;
+
       case directions.LEFT:
         newShapePoints.map(p => {
           p[0] -= 2;
@@ -191,7 +237,7 @@ module.exports = class Shape {
         if (this.points.length > 1) {
 
           const newSelectedPoints = this.direction === 0 ? this.points.length - 1 : this.direction - 1;
-          newShapePoints = clone(this.points[newSelectedPoints]);
+          newShapePoints = structuredClone(this.points[newSelectedPoints]);
 
           // apply offset
           for (const p of newShapePoints) {
@@ -223,10 +269,12 @@ module.exports = class Shape {
       this.board.lockShape(gameOver);
     }
     else if (canMove) {
+      this.drawGhost(true);
       this.draw(true);
       this.currentPoints = newShapePoints;
       this.offset[0] += offset[0];
       this.offset[1] += offset[1];
+      this.drawGhost();
       this.draw();
       this.screen.render();
 

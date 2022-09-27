@@ -38,21 +38,20 @@ module.exports = {
    * this algorithm:
    * - selects a random shape
    * - if we haven't seen a shape in a while (21 turns), try up to 3x to get it
-   * - if the shape is the same as one of the last two shapes, try once to get a different shape
+   * - if the random shape is the same as the last shape, try to get a different shape
    */
   *frustrationFree() {
 
-    const LAST_SHAPE_THRESHOLD = 2; // the number of recent turns where if a shape appeared, we try to get another shape
+    let lastShape;
 
-    // init all values with LAST_SHAPE_THRESHOLD to prevent hitting the recent shape logic
     const shapeLastSeen = {
-      0: LAST_SHAPE_THRESHOLD,
-      1: LAST_SHAPE_THRESHOLD,
-      2: LAST_SHAPE_THRESHOLD,
-      3: LAST_SHAPE_THRESHOLD,
-      4: LAST_SHAPE_THRESHOLD,
-      5: LAST_SHAPE_THRESHOLD,
-      6: LAST_SHAPE_THRESHOLD,
+      0: 0,
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
     };
 
     while (true) {
@@ -81,9 +80,9 @@ module.exports = {
 
       }
 
-      // if we saw the shape in the last two turns, try once to get a different shape
-      if (shapeLastSeen[shape] < LAST_SHAPE_THRESHOLD) {
-        log(`saw ${shape} too recently.. try to find another`);
+      // if shape is same as the last one, try to get a different shape
+      if (shape === lastShape) {
+        log(`shape ${shape} is the same as the last one.. try to find another`);
         shape = getRandomNumber(shapes.length);
       }
 
@@ -96,6 +95,8 @@ module.exports = {
           shapeLastSeen[s] += 1;
         }
       }
+
+      lastShape = shape;
 
       log(`yielded shape ${shape}`);
 
@@ -121,6 +122,46 @@ module.exports = {
       if (easyShapes.length === 0) {
         // create a collection of 3x the shapes list
         easyShapes = shapes.concat(shapes, shapes);
+        shuffle(easyShapes);
+      }
+
+      let shape, shapeIndex;
+
+      // try up to three times to get a different shape than the previous shape
+      for (let i = 0; i < 3; i++) {
+
+        shapeIndex = getRandomNumber(easyShapes.length);
+        shape = easyShapes[shapeIndex];
+
+        if (shape !== lastShape) {
+          break;
+        }
+
+      }
+
+      easyShapes.splice(shapeIndex, 1);
+      lastShape = shape;
+
+      yield shape;
+
+    }
+  },
+
+  /**
+   * this algorithm:
+   * - creates a collection of 1x each shape (7 total)
+   * - distributes the shapes randomly until all 7 are gone, and repeats this cycle forever
+   * - if the random shape is the same as the last shape, try up to 3x to get a different shape
+   */
+  *tooEasy() {
+
+    let easyShapes = [];
+    let lastShape;
+
+    while (true) {
+
+      if (easyShapes.length === 0) {
+        easyShapes = [...shapes];
         shuffle(easyShapes);
       }
 

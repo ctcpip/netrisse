@@ -1,6 +1,6 @@
 /* eslint-disable guard-for-in */
 
-const { easy, frustrationFree, random } = require('../algorithms');
+const { easy, frustrationFree, random, tooEasy } = require('../algorithms');
 
 const LOOP_COUNT = 1000000;
 const deviationLoopCount = 10;
@@ -65,6 +65,30 @@ function getEasyStandardDeviation() {
 
 }
 
+function getTooEasyStandardDeviation() {
+
+  const algo = tooEasy();
+
+  const distribution = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+  };
+
+  for (let i = 0; i < LOOP_COUNT; i++) {
+    distribution[algo.next().value] += 1;
+  }
+
+  // logDistribution(distribution);
+
+  return Math.floor(getStandardDeviation(Object.values(distribution)));
+
+}
+
 function getFFStandardDeviation() {
 
   const algo = frustrationFree();
@@ -107,6 +131,14 @@ if (easyDeviation > 1) {
 }
 
 console.log(`easy deviation: ${easyDeviation}`);
+
+const tooEasyDeviation = getTooEasyStandardDeviation();
+
+if (tooEasyDeviation > 1) {
+  throw new Error('too easy deviation is unacceptable!');
+}
+
+console.log(`too easy deviation: ${tooEasyDeviation}`);
 
 const ffDeviation = getFFStandardDeviation();
 

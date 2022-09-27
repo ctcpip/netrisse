@@ -25,8 +25,8 @@ module.exports = class Screen {
 
     this.term.grabInput();
 
-    this.d(24, 13, `Seed:  ${this.seed}`);
-    this.d(24, 14, `Speed: ${this.interval}ms`);
+    this.d(24, 19, `Seed:  ${this.seed}`);
+    this.d(24, 20, `Speed: ${this.interval}ms`);
 
     this.displayTime();
     this.timeDisplayTimeout = setTimeout(this.displayTime.bind(this), 1000);

@@ -1,5 +1,6 @@
 const shapeI =
 { color: 'blue',
+  ghostColor: 17,
   points: [
     [ // horizontal
       [-3, 0],
@@ -25,6 +26,7 @@ const shapeI =
 
 const shapeJ =
 { color: 'yellow',
+  ghostColor: 58,
   points: [
     [ // horizontal 1
       [-3, 0],
@@ -70,6 +72,7 @@ const shapeJ =
 
 const shapeL =
   { color: 'cyan',
+    ghostColor: 23,
     points: [
       [ // horizontal 1
         [-3, 0],
@@ -115,6 +118,7 @@ const shapeL =
 
 const shapeO =
   { color: 'magenta',
+    ghostColor: 53,
     points: [
       [
         [-3, 0],
@@ -130,6 +134,7 @@ const shapeO =
 
 const shapeS =
   { color: 'green',
+    ghostColor: 22,
     points: [
       [ // horizontal
         [-3, 1],
@@ -155,6 +160,7 @@ const shapeS =
 
 const shapeT =
   { color: 'white',
+    ghostColor: 237,
     points: [
       [ // horizontal 1
         [-3, 0],
@@ -200,6 +206,7 @@ const shapeT =
 
 const shapeZ =
   { color: 'red',
+    ghostColor: 52,
     points: [
       [ // horizontal
         [-3, 0],

@@ -13,6 +13,8 @@ const screen = new Screen(colorEnabled, interval);
 const game = new Game(interval, algorithms.frustrationFree);
 const board = new Board(2, 21, 23, 0, screen, game);
 
+game.boards.push(board);
+
 function quit() {
   clearTimeout(board.currentTimeout);
   clearTimeout(screen.timeDisplayTimeout);
@@ -46,13 +48,21 @@ screen.term.on('key', name => { // eslint-disable-line complexity
     case 'RIGHT':
       board.currentShape.move(directions.RIGHT);
       break;
+    case ' ':
+      board.currentShape.move(directions.DROP);
+      break;
     case 'm':
     case 'M':
     case 'DOWN':
       board.currentShape.move(directions.DOWN);
       break;
-    case ' ':
-      board.currentShape.move(directions.DROP);
+    case 'h':
+    case 'H':
+      board.holdShape();
+      break;
+    case 'p':
+    case 'P':
+      game.pause();
       break;
     case 'CTRL_C':
     case 'Q':
