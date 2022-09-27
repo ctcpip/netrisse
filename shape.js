@@ -158,7 +158,6 @@ module.exports = class Shape {
 
     let lockShape = false;
     let canMove = true;
-    let gameOver = false;
 
     const offset = [0, 0];
 
@@ -179,24 +178,17 @@ module.exports = class Shape {
           }
 
           if (canMove) {
-
             if (direction === directions.DROP) {
               offset[1] = downDropPositionData.dropGhostOffsetY;
             }
             else {
               offset[1] = downDropPositionData.offsetY;
             }
-
           }
-          else if (direction === directions.AUTO || direction === directions.DROP) {
+
+          if ((direction === directions.AUTO && !canMove) || direction === directions.DROP) { // eslint-disable-line no-extra-parens
             // only lock when auto-moved or dropped
             lockShape = true;
-
-            // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
-            if (Math.min(...this.currentPoints.map(p => p[1])) <= this.board.top) { // eslint-disable-line max-depth
-              gameOver = true;
-            }
-
           }
 
         }
@@ -267,10 +259,8 @@ module.exports = class Shape {
         throw new Error('like a rolling stone!');
     }
 
-    if (lockShape) {
-      this.board.lockShape(gameOver);
-    }
-    else if (canMove) {
+    if (canMove) {
+
       this.drawGhost(true);
       this.draw(true);
       this.currentPoints = newShapePoints;
@@ -281,20 +271,22 @@ module.exports = class Shape {
       this.screen.render();
 
       switch (direction) {
+        case directions.AUTO:
         case directions.DOWN:
           // if shape was manually moved down, reset the automatic down timer.
           // this prevents automatically locking the shape immediately after
           // moving down to touch the bottom or another shape, giving the player
           // the normal amount of time to rotate or move the piece before it locks
-          clearTimeout(this.board.currentTimeout);
-          // fall through to start a new timeout
-        case directions.AUTO:
-          this.board.currentTimeout = setTimeout(this.board.moveShapeAutomatically.bind(this.board), this.board.game.interval);
+          this.board.resetAutoMoveTimer();
           break;
         default:
           break;
       }
 
+    }
+
+    if (lockShape) {
+      this.board.lockShape();
     }
 
     this.board.concurrentExecutions -= 1;

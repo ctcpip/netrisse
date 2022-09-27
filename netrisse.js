@@ -16,7 +16,7 @@ const board = new Board(2, 21, 23, 0, screen, game);
 game.boards.push(board);
 
 function quit() {
-  clearTimeout(board.currentTimeout);
+  board.stopAutoMoveTimer();
   clearTimeout(screen.timeDisplayTimeout);
   screen.term.grabInput(false);
   screen.term.moveTo(board.left + 1, board.bottom + 1);

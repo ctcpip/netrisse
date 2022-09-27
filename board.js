@@ -173,7 +173,7 @@ module.exports = class Board {
 
     this.nextShapeType = this.algorithm.next().value;
     this.currentShape = Shape.createNewShape(this.screen, this, newShapeType);
-    this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+    this.resetAutoMoveTimer();
 
     this.drawHeldShape(this.nextShapeType, false, false);
     this.screen.render();
@@ -257,9 +257,17 @@ module.exports = class Board {
 
   }
 
-  lockShape(gameOver) {
+  lockShape() {
+
+    let gameOver = false;
 
     this.occupiedPoints.push(...this.currentShape.currentPoints);
+
+    // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
+    if (Math.min(...this.currentShape.currentPoints.map(p => p[1])) <= this.top) { // eslint-disable-line max-depth
+      gameOver = true;
+    }
+
     this.clearLines(gameOver);
 
     if (gameOver) {
@@ -280,12 +288,12 @@ module.exports = class Board {
     const txtPaused = 'Game paused by you';
 
     if (this.game.paused) {
-      clearTimeout(this.currentTimeout);
+      this.stopAutoMoveTimer();
       this.screen.d(24, 21, txtPaused);
     }
     else {
 
-      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+      this.resetAutoMoveTimer();
 
       for (let i = 0; i < txtPaused.length; i++) {
         this.screen.d(24 + i, 21, ' ');
@@ -304,7 +312,7 @@ module.exports = class Board {
       return;
     }
 
-    clearTimeout(this.currentTimeout);
+    this.stopAutoMoveTimer();
 
     let copyHeldShape;
 
@@ -336,7 +344,7 @@ module.exports = class Board {
 
       this.screen.render();
 
-      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+      this.resetAutoMoveTimer();
 
     }
     else {
@@ -412,6 +420,15 @@ module.exports = class Board {
 
     }
 
+  }
+
+  stopAutoMoveTimer() {
+    clearTimeout(this.currentTimeout);
+  }
+
+  resetAutoMoveTimer() {
+    this.stopAutoMoveTimer();
+    this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
   }
 
 };
