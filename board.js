@@ -13,28 +13,31 @@ module.exports = class Board {
   replay = false; // used for debugging,
   heldShape;
   nextShapeType = null;
+  score = 0n;
+  linesCleared = 0;
+  gameOver = false;
 
-  constructor(top, right, bottom, left, screen, game) {
+  constructor(top, right, bottom, left, screen, game, seed, isMainBoard) { // eslint-disable-line max-params
     this.top = top;
     this.right = right;
     this.bottom = bottom;
     this.left = left;
     this.screen = screen;
     this.game = game;
-    this.algorithm = game.algorithm();
-    this.score = 0n;
-    this.linesCleared = 0;
-    this.gameOver = false;
+    this.algorithm = game.algorithm(seed);
+    this.isMainBoard = isMainBoard;
 
-    this.nextBox = {};
-    this.nextBox.top = this.top;
-    this.nextBox.left = this.right + 2;
-    this.nextBox.right = this.nextBox.left + 11;
-    this.nextBox.bottom = this.nextBox.top + 5;
+    if (this.isMainBoard) {
+      this.nextBox = {};
+      this.nextBox.top = this.top;
+      this.nextBox.left = this.right + 2;
+      this.nextBox.right = this.nextBox.left + 11;
+      this.nextBox.bottom = this.nextBox.top + 5;
 
-    this.holdBox = structuredClone(this.nextBox);
-    this.holdBox.top = this.holdBox.bottom + 1;
-    this.holdBox.bottom = this.holdBox.top + 5;
+      this.holdBox = structuredClone(this.nextBox);
+      this.holdBox.top = this.holdBox.bottom + 1;
+      this.holdBox.bottom = this.holdBox.top + 5;
+    }
 
     this.draw();
     this.startNewShape();
@@ -74,6 +77,8 @@ module.exports = class Board {
 
   drawNextBox() {
 
+    if (!this.isMainBoard) { return; }
+
     this.screen.d(this.nextBox.left, this.nextBox.top, this.heldShapeTopBorder);
 
     this.screen.d(this.nextBox.left + 4, this.nextBox.top + 1, 'NEXT');
@@ -91,6 +96,8 @@ module.exports = class Board {
   }
 
   drawHoldBox() {
+
+    if (!this.isMainBoard) { return; }
 
     this.screen.d(this.holdBox.left, this.holdBox.top, this.heldShapeTopBorder);
 
@@ -137,12 +144,14 @@ module.exports = class Board {
     // display text centered on the board
     for (let i = 0; i < lines.length; i++) {
       const l = lines[i];
-      this.screen.d(Math.ceil(this.right / 2) - Math.ceil((l.length / 2)), firstLineY + i, l, { color: 'red' }); // eslint-disable-line no-extra-parens
+      this.screen.d(Math.ceil((this.right + this.left) / 2) - Math.ceil((l.length / 2)), firstLineY + i, l, { color: 'brightRed' }); // eslint-disable-line no-extra-parens
     }
 
   }
 
   drawScore() {
+    if (!this.isMainBoard) { return; }
+
     this.screen.d(this.right + 3, 15, `Score: ${this.score}`);
     this.screen.d(this.right + 3, 16, `Lines: ${this.linesCleared}`);
   }
@@ -289,7 +298,7 @@ module.exports = class Board {
 
     if (this.game.paused) {
       this.stopAutoMoveTimer();
-      this.screen.d(24, 21, txtPaused);
+      this.screen.d(24, 21, txtPaused, { color: 'brightRed' });
     }
     else {
 
@@ -357,6 +366,10 @@ module.exports = class Board {
   }
 
   drawHeldShape(shapeType, clear, isHold) {
+
+    if (!this.isMainBoard) {
+      return;
+    }
 
     const s = shapes[shapeType];
 

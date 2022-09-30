@@ -1,6 +1,9 @@
 /* eslint-disable guard-for-in */
 
 const { easy, frustrationFree, random, tooEasy } = require('../algorithms');
+const MersenneTwister = require('mersenne-twister');
+
+const seed = new MersenneTwister().random_int();
 
 const LOOP_COUNT = 1000000;
 const deviationLoopCount = 10;
@@ -19,7 +22,7 @@ function logDistribution(distribution) { // eslint-disable-line no-unused-vars
 
 function getRandomStandardDeviation() {
 
-  const algo = random();
+  const algo = random(seed);
 
   const distribution = {
     0: 0,
@@ -43,7 +46,7 @@ function getRandomStandardDeviation() {
 
 function getEasyStandardDeviation() {
 
-  const algo = easy();
+  const algo = easy(seed);
 
   const distribution = {
     0: 0,
@@ -67,7 +70,7 @@ function getEasyStandardDeviation() {
 
 function getTooEasyStandardDeviation() {
 
-  const algo = tooEasy();
+  const algo = tooEasy(seed);
 
   const distribution = {
     0: 0,
@@ -91,7 +94,7 @@ function getTooEasyStandardDeviation() {
 
 function getFFStandardDeviation() {
 
-  const algo = frustrationFree();
+  const algo = frustrationFree(seed);
 
   const distribution = {
     0: 0,

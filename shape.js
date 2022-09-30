@@ -68,7 +68,8 @@ module.exports = class Shape {
 
     [this.currentPoints] = structuredClone(this.points);
 
-    const x = ((this.board.right + 1) / 2) + 1; // eslint-disable-line no-extra-parens
+    // center of the board
+    const x = ((this.board.right + this.board.left + 1) / 2) + 1; // eslint-disable-line no-extra-parens
 
     let y = this.board.top;
 

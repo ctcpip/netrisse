@@ -1,10 +1,9 @@
 const termkit = require('terminal-kit');
-const { seed } = require('./random');
 const packageJSON = require('./package.json');
 
 module.exports = class Screen {
 
-  constructor(colorEnabled, interval) {
+  constructor(colorEnabled, interval, seed) {
 
     this.colorEnabled = colorEnabled;
     this.term = termkit.terminal;
