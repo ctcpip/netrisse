@@ -190,9 +190,7 @@ module.exports = class Board {
   }
 
   moveShapeAutomatically() {
-    if (!this.replay) {
-      this.currentShape.move(directions.AUTO);
-    }
+    this.currentShape.move(directions.AUTO);
   }
 
   isPointOccupied(p) {
@@ -292,9 +290,17 @@ module.exports = class Board {
 
   factorial(n) { return !(n > 1) ? 1 : this.factorial(n - 1) * n; } // eslint-disable-line no-negated-condition
 
-  pause() {
+  pause(isRemote) {
 
-    const txtPaused = 'Game paused by you';
+    let txtPaused = 'Game paused';
+
+    if (isRemote) {
+      txtPaused += '       '; // padding to clear out the pause text when a different player unpauses
+    }
+    else {
+      txtPaused += ' by you';
+      this.game.client?.sendMessage({}, this.game.client.messageTypeEnum.PAUSE);
+    }
 
     if (this.game.paused) {
       this.stopAutoMoveTimer();
@@ -319,6 +325,10 @@ module.exports = class Board {
     if (this.currentShape.held || this.game.paused) {
       // current shape cannot be held more than once
       return;
+    }
+
+    if (this.isMainBoard) {
+      this.game.client?.sendMessage({}, this.game.client.messageTypeEnum.HOLD);
     }
 
     this.stopAutoMoveTimer();
@@ -440,8 +450,10 @@ module.exports = class Board {
   }
 
   resetAutoMoveTimer() {
-    this.stopAutoMoveTimer();
-    this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+    if (!this.replay && this.isMainBoard) {
+      this.stopAutoMoveTimer();
+      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+    }
   }
 
 };

@@ -147,6 +147,10 @@ module.exports = class Shape {
       return;
     }
 
+    if (this.board.isMainBoard) {
+      this.board.game.client?.sendMessage({ direction }, this.board.game.client.messageTypeEnum.DIRECTION);
+    }
+
     this.board.moves.push(direction);
 
     if (this.board.concurrentExecutions > 0) {

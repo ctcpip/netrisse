@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "mersenne-twister": "^1.1.0",
-    "terminal-kit": "^3.0.0"
+    "terminal-kit": "^3.0.0",
+    "uuid": "^9.0.0",
+    "ws": "^8.9.0"
   },
   "scripts": {
     "test": "eslint . && node ./test/algorithm-test.js"

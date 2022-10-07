@@ -3,18 +3,18 @@ module.exports = class Game {
   paused = false;
   boards = [];
 
-  constructor(interval, algorithm) {
+  constructor(interval, algorithm, client) {
     this.interval = interval;
     this.algorithm = algorithm;
+    this.client = client;
   }
 
-  pause() {
+  pause(isRemote) {
 
     this.paused = !this.paused;
 
-    for (const b of this.boards) {
-      b.pause();
-    }
+    // no need to call pause() on the other player boards
+    this.boards[0].pause(isRemote);
 
   }
 
