@@ -15,7 +15,7 @@ module.exports = class Board {
   linesCleared = 0;
   gameOver = false;
 
-  constructor(top, right, bottom, left, screen, game, seed, isMainBoard) {  
+  constructor(top, right, bottom, left, screen, game, seed, isMainBoard) {
     this.top = top;
     this.right = right;
     this.bottom = bottom;
@@ -130,7 +130,7 @@ module.exports = class Board {
     // display text centered on the board
     for (let i = 0; i < lines.length; i++) {
       const l = lines[i];
-      this.screen.d(Math.ceil((this.right + this.left) / 2) - Math.ceil((l.length / 2)), firstLineY + i, l, { color: 'brightRed' });  
+      this.screen.d(Math.ceil((this.right + this.left) / 2) - Math.ceil((l.length / 2)), firstLineY + i, l, { color: 'brightRed' });
     }
   }
 
@@ -173,9 +173,7 @@ module.exports = class Board {
   }
 
   moveShapeAutomatically() {
-    if (!this.replay) {
-      this.currentShape.move(directions.AUTO);
-    }
+    this.currentShape.move(directions.AUTO);
   }
 
   isPointOccupied(p) {
@@ -246,7 +244,7 @@ module.exports = class Board {
     this.occupiedPoints.push(...this.currentShape.currentPoints);
 
     // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
-    if (Math.min(...this.currentShape.currentPoints.map(p => p[1])) <= this.top) {  
+    if (Math.min(...this.currentShape.currentPoints.map(p => p[1])) <= this.top) {
       gameOver = true;
     }
 
@@ -262,10 +260,18 @@ module.exports = class Board {
     }
   }
 
-  factorial(n) { return !(n > 1) ? 1 : this.factorial(n - 1) * n; }  
+  factorial(n) { return !(n > 1) ? 1 : this.factorial(n - 1) * n; }
 
-  pause() {
-    const txtPaused = 'Game paused by you';
+  pause(isRemote) {
+    let txtPaused = 'Game paused';
+
+    if (isRemote) {
+      txtPaused += '       '; // padding to clear out the pause text when a different player unpauses
+    }
+    else {
+      txtPaused += ' by you';
+      this.game.client?.sendMessage({}, this.game.client.messageTypeEnum.PAUSE);
+    }
 
     if (this.game.paused) {
       this.stopAutoMoveTimer();
@@ -286,6 +292,10 @@ module.exports = class Board {
     if (this.currentShape.held || this.game.paused) {
       // current shape cannot be held more than once
       return;
+    }
+
+    if (this.isMainBoard) {
+      this.game.client?.sendMessage({}, this.game.client.messageTypeEnum.HOLD);
     }
 
     this.stopAutoMoveTimer();
@@ -396,7 +406,9 @@ module.exports = class Board {
   }
 
   resetAutoMoveTimer() {
-    this.stopAutoMoveTimer();
-    this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+    if (!this.replay && this.isMainBoard) {
+      this.stopAutoMoveTimer();
+      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+    }
   }
 };
