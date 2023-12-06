@@ -17,7 +17,7 @@ module.exports = class Board {
   linesCleared = 0;
   gameOver = false;
 
-  constructor(top, right, bottom, left, screen, game, seed, isMainBoard) { // eslint-disable-line max-params
+  constructor(top, right, bottom, left, screen, game, seed, playerID) { // eslint-disable-line max-params
     this.top = top;
     this.right = right;
     this.bottom = bottom;
@@ -25,7 +25,7 @@ module.exports = class Board {
     this.screen = screen;
     this.game = game;
     this.algorithm = game.algorithm(seed);
-    this.isMainBoard = isMainBoard;
+    this.playerID = playerID;
 
     if (this.isMainBoard) {
       this.nextBox = {};
@@ -40,7 +40,6 @@ module.exports = class Board {
     }
 
     this.draw();
-    this.startNewShape();
 
     if (this.replay) {
 
@@ -257,9 +256,33 @@ module.exports = class Board {
 
       this.screen.render();
 
+      if (this.isMainBoard) {
+        this.sendJunk(linesCleared);
+      }
+
       // eslint-disable-next-line no-param-reassign, no-unused-vars
       gameOver = false; // give them another chance if they cleared lines...
 
+    }
+
+  }
+
+  sendJunk(linesCleared) {
+
+    /*
+      +----------------+-------------+
+      | Lines Cleared  |  Junk Lines |
+      +----------------+-------------+
+      |              1 |           0 |
+      |              2 |           1 |
+      |              3 |           2 |
+      |              4 |           4 |
+      +----------------+-------------+
+    */
+    const junkLines = linesCleared === 4 ? 4 : linesCleared - 1;
+
+    if (junkLines > 0) {
+      this.game.sendJunk(junkLines);
     }
 
   }
@@ -290,39 +313,42 @@ module.exports = class Board {
 
   factorial(n) { return !(n > 1) ? 1 : this.factorial(n - 1) * n; } // eslint-disable-line no-negated-condition
 
-  pause(isRemote) {
+  setPauseText() {
 
     let txtPaused = 'Game paused';
 
-    if (isRemote) {
-      txtPaused += '       '; // padding to clear out the pause text when a different player unpauses
+    if (this.game.isPausedByThisPlayer) {
+      txtPaused += ' by you';
     }
     else {
-      txtPaused += ' by you';
-      this.game.client?.sendMessage({}, this.game.client.messageTypeEnum.PAUSE);
+      txtPaused += '       '; // padding to clear out the pause text when another player is paused, but current player isn't
     }
 
-    if (this.game.paused) {
-      this.stopAutoMoveTimer();
+    if (this.game.isPaused) {
       this.screen.d(24, 21, txtPaused, { color: 'brightRed' });
     }
     else {
-
-      this.resetAutoMoveTimer();
-
       for (let i = 0; i < txtPaused.length; i++) {
         this.screen.d(24 + i, 21, ' ');
       }
-
     }
 
     this.screen.render();
 
   }
 
+  pause() {
+    if (this.game.isPaused) {
+      this.stopAutoMoveTimer();
+    }
+    else {
+      this.resetAutoMoveTimer();
+    }
+  }
+
   holdShape() {
 
-    if (this.currentShape.held || this.game.paused) {
+    if (this.currentShape.held || this.game.isPaused) {
       // current shape cannot be held more than once
       return;
     }
@@ -454,6 +480,26 @@ module.exports = class Board {
       this.stopAutoMoveTimer();
       this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
     }
+  }
+
+  /**
+   * gets the lowest Y value occupied on the board
+   */
+  getHighestOccupiedPoint() {
+    return Math.min(...this.occupiedPoints.map(op => op[1]));
+  }
+
+  receiveJunk(junkLines) {
+    // move all occupied points up by junkLines
+    // clear junkLines points
+
+    // make junk holes align, with x chosen randomly, except the y above the top hole must be occupied
+    // add to occupied points
+    // draw junk lines
+  }
+
+  get isMainBoard() {
+    return this.game.boards.length === 0 || this.game.boards[0] === this;
   }
 
 };

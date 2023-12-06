@@ -28,39 +28,76 @@ const NetrisseClient = require('./client');
   let seed = new MersenneTwister().random_int();
   // const seed = 3103172451;
 
+  let thisPlayerIsPaused = false;
+  let thisPlayerID = 0;
+
   let players = 1;
   players += 1;
 
-  let client, game; // eslint-disable-line prefer-const
+  let client, game, screen; // eslint-disable-line prefer-const
 
   if (players > 1) {
 
     client = new NetrisseClient('snoofism');
     client.connect(seed);
 
+    thisPlayerID = client.playerID;
+
     let seedFromServer;
 
-    client.ws.on('message', rawData => {
+    client.ws.on('message', async rawData => { // eslint-disable-line complexity
 
       // QUIT: 4, client
-      // PAUSE: 3, server
       // QUIT: 4, server
 
       const message = JSON.parse(rawData);
 
       // need to change to use the correct board for the player who sent the message
       switch (message.type) {
+        case client.messageTypeEnum.CONNECT:
+        {
+
+          await retry(0.25, 100, () => !game); // nasty, fix
+
+          if (!game) {
+            throw new Error('sadness :(');
+          }
+
+          for (const p of message.players) {
+            if (p !== thisPlayerID) {
+              const xOffset = 1;
+              const boardPosition = [mainBoardPosition[0], (mainBoardPosition[1] * 3) + xOffset, mainBoardPosition[2], (mainBoardPosition[1] * 2) + xOffset]; // eslint-disable-line no-extra-parens
+              const b = new Board(...boardPosition, screen, game, seed);
+              game.boards.push(b);
+              game.pause(true, p, true);
+            }
+          }
+
+          break;
+        }
+
         case client.messageTypeEnum.DIRECTION:
           game.boards[1].currentShape.move(message.direction);
           break;
         case client.messageTypeEnum.HOLD:
           game.boards[1].holdShape();
           break;
+
+        case client.messageTypeEnum.JUNK:
+        {
+          const b = game.boards.find(b2 => b2.playerID === message.toPlayerID);
+          b.receiveJunk(message.junkLines);
+          break;
+        }
+
         case client.messageTypeEnum.PAUSE:
-          game.pause(true);
+          game.pause(true, message.playerID, true);
           break;
         case client.messageTypeEnum.SEED:
           seedFromServer = message.seed;
+          break;
+        case client.messageTypeEnum.UNPAUSE:
+          game.pause(false, message.playerID, true);
           break;
         default:
           throw new Error(`unsupported message type: ${message.type}`);
@@ -68,7 +105,7 @@ const NetrisseClient = require('./client');
 
     });
 
-    await retry(0.25, 100, () => !seedFromServer);
+    await retry(0.25, 100, () => !seedFromServer); // nasty, fix
 
     if (seedFromServer) {
       seed = seedFromServer;
@@ -79,17 +116,16 @@ const NetrisseClient = require('./client');
 
   }
 
-  const screen = new Screen(colorEnabled, interval, seed);
-  game = new Game(interval, algorithms.frustrationFree, client);
-  const board = new Board(...mainBoardPosition, screen, game, seed, true);
+  screen = new Screen(colorEnabled, interval, seed);
+  game = new Game(interval, algorithms.frustrationFree, client, thisPlayerID);
+  const board = new Board(...mainBoardPosition, screen, game, seed);
 
   game.boards.push(board);
 
   if (players > 1) {
-    const xOffset = 1;
-    const boardPosition = [mainBoardPosition[0], (mainBoardPosition[1] * 3) + xOffset, mainBoardPosition[2], (mainBoardPosition[1] * 2) + xOffset]; // eslint-disable-line no-extra-parens
-    const b = new Board(...boardPosition, screen, game, seed, false);
-    game.boards.push(b);
+    // for a multi-player game, pause at the start to allow players to join
+    thisPlayerIsPaused = true;
+    game.pause(true, thisPlayerID, false);
   }
 
   function quit() {
@@ -146,10 +182,19 @@ const NetrisseClient = require('./client');
       case 'H':
         board.holdShape();
         break;
+
       case 'p':
-      case 'P':
-        game.pause(false);
+      case 'P': // eslint-disable-line padding-line-between-statements
+      {
+        thisPlayerIsPaused = !thisPlayerIsPaused;
+
+        const messageType = thisPlayerIsPaused ? client.messageTypeEnum.PAUSE : client.messageTypeEnum.UNPAUSE;
+
+        client?.sendMessage({}, messageType);
+        game.pause(thisPlayerIsPaused, thisPlayerID, false);
         break;
+      }
+
       case 'CTRL_C':
       case 'Q':
       case 'q':

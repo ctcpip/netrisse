@@ -143,7 +143,7 @@ module.exports = class Shape {
 
   move(direction) { // eslint-disable-line complexity
 
-    if (this.board.gameOver || this.board.game.paused) {
+    if (this.board.gameOver || this.board.game.isPaused) {
       return;
     }
 

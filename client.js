@@ -7,9 +7,11 @@ module.exports = class NetrisseClient {
     CONNECT: 0,
     DIRECTION: 1,
     HOLD: 2,
-    PAUSE: 3,
-    QUIT: 4,
-    SEED: 5,
+    JUNK: 3,
+    PAUSE: 4,
+    QUIT: 5,
+    SEED: 6,
+    UNPAUSE: 7,
   });
 
   constructor(gameID, server = 'localhost:4752',) {
@@ -41,11 +43,12 @@ module.exports = class NetrisseClient {
   }
 
   disconnect() {
-    this.ws.close();
+    this.ws.close(4333, JSON.stringify({ playerID: this.playerID, gameID: this.gameID }));
   }
 
   sendMessage(o = {}, type) {
     this.ws.send(JSON.stringify(Object.assign(o, { type, playerID: this.playerID, gameID: this.gameID })));
+    // check error here
   }
 
 };
