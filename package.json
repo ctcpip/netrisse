@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/ctcpip/netrisse#readme",
   "devDependencies": {
-    "eslint": "^8.23.1"
+    "eslint": "^9.1.0"
   },
   "pkg": {
     "assets": "node_modules/terminal-kit/**/*"
