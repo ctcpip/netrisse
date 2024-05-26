@@ -1,10 +1,8 @@
-/* eslint-disable max-lines */
 const { shapes } = require('./shapes');
 const Shape = require('./shape');
 const directions = require('./directions');
 
 module.exports = class Board {
-
   currentShape;
   currentTimeout;
   occupiedPoints = [];
@@ -17,7 +15,7 @@ module.exports = class Board {
   linesCleared = 0;
   gameOver = false;
 
-  constructor(top, right, bottom, left, screen, game, seed, isMainBoard) { // eslint-disable-line max-params
+  constructor(top, right, bottom, left, screen, game, seed, isMainBoard) {  
     this.top = top;
     this.right = right;
     this.bottom = bottom;
@@ -43,15 +41,12 @@ module.exports = class Board {
     this.startNewShape();
 
     if (this.replay) {
-
       const theMoves = [3, 0, 2, 2, 2, 0, 0, 0, 6, 0, 2, 0, 3, 3, 0, 6, 0, 1, 1, 0, 1, 0, 2, 3, 2, 2, 0, 6, 0, 0, 1, 3, 1, 0, 1, 1, 1, 1, 0, 6, 0, 1, 1, 0, 3, 3, 0, 3, 2, 2, 0, 2, 2, 0, 6, 0, 1, 0, 0, 3, 2, 0, 6, 0, 0, 1, 1, 0, 6, 0, 0, 3, 1, 0, 3, 3, 0, 3, 3, 0, 3, 0, 3, 1, 0, 6, 0, 0, 0, 3, 2, 0, 1, 6, 0, 0, 0, 0, 1, 0, 2, 0, 2, 3, 0, 1, 1, 0, 6, 0, 1, 0, 3, 1, 3, 3, 1, 0, 1, 1, 1, 6, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 6, 0, 1, 0, 3, 2, 0, 2, 0, 6, 0, 0, 1, 0, 0, 0, 2, 2, 0, 2, 2, 2, 0, 6, 0, 1, 0, 3, 1, 1, 0, 6, 0, 0, 1, 3, 0, 3, 3, 0, 1, 6, 0, 0, 0, 3, 0, 1, 0, 6, 0, 0, 0, 0, 3, 2, 0, 1, 1, 0, 1, 1, 1, 1, 0, 6, 0, 0, 0, 3, 3, 0, 2, 2, 2, 0, 1, 6, 0, 0, 3, 3, 0, 3, 0, 2, 2, 2, 0, 6, 0, 0, 3, 1, 1, 0, 3, 3, 0, 3, 3, 1, 0, 6, 0, 0, 0, 3, 1, 1, 1, 0, 1, 1, 1, 6, 0, 0, 3, 2, 0, 2, 2, 2, 2, 0, 6, 0, 0, 2, 2, 0, 6, 0, 0, 3, 1, 3, 0, 3, 1, 0, 6, 0, 0, 3, 0, 3, 2, 0, 2, 6, 0, 0, 2, 3, 2, 2, 0, 2, 2, 2, 0, 6, 0];
 
       for (const direction of theMoves) {
         this.currentShape.move(direction);
       }
-
     }
-
   }
 
   topBorder = '┏━━━━━━━━━━━━━━━━━━━━┓';
@@ -60,7 +55,6 @@ module.exports = class Board {
   heldShapeBottomBorder = '┗━━━━━━━━━━┛';
 
   drawBoard() {
-
     this.screen.d(this.left, this.top, this.topBorder);
 
     for (let i = this.top + 1; i < this.bottom; i++) {
@@ -72,11 +66,9 @@ module.exports = class Board {
     }
 
     this.drawBottomBorder();
-
   }
 
   drawNextBox() {
-
     if (!this.isMainBoard) { return; }
 
     this.screen.d(this.nextBox.left, this.nextBox.top, this.heldShapeTopBorder);
@@ -92,11 +84,9 @@ module.exports = class Board {
     }
 
     this.screen.d(this.nextBox.left, this.nextBox.bottom, this.heldShapeBottomBorder);
-
   }
 
   drawHoldBox() {
-
     if (!this.isMainBoard) { return; }
 
     this.screen.d(this.holdBox.left, this.holdBox.top, this.heldShapeTopBorder);
@@ -112,7 +102,6 @@ module.exports = class Board {
     }
 
     this.screen.d(this.holdBox.left, this.holdBox.bottom, this.heldShapeBottomBorder);
-
   }
 
   draw() {
@@ -128,25 +117,21 @@ module.exports = class Board {
   }
 
   drawGameOver() {
-
     const lines = `IT'S CURTAINS FOR YOU!`.split(' ');
     const firstLineY = Math.floor(this.bottom / 2) - 4;
 
     // clear out some space on the board
     for (let i = 0; i < 6; i++) {
-
       for (let i2 = this.left + 1; i2 < this.right; i2++) {
         this.screen.d(i2, firstLineY - 1 + i, ' ');
       }
-
     }
 
     // display text centered on the board
     for (let i = 0; i < lines.length; i++) {
       const l = lines[i];
-      this.screen.d(Math.ceil((this.right + this.left) / 2) - Math.ceil((l.length / 2)), firstLineY + i, l, { color: 'brightRed' }); // eslint-disable-line no-extra-parens
+      this.screen.d(Math.ceil((this.right + this.left) / 2) - Math.ceil((l.length / 2)), firstLineY + i, l, { color: 'brightRed' });  
     }
-
   }
 
   drawScore() {
@@ -167,7 +152,6 @@ module.exports = class Board {
   }
 
   startNewShape() {
-
     this.drawBottomBorder(); // reset bottom border indicator
 
     let newShapeType;
@@ -186,7 +170,6 @@ module.exports = class Board {
 
     this.drawHeldShape(this.nextShapeType, false, false);
     this.screen.render();
-
   }
 
   moveShapeAutomatically() {
@@ -204,7 +187,6 @@ module.exports = class Board {
   }
 
   clearLines(gameOver) {
-
     // get the Y's of current points (only need to check these y lines are full)
     // iterate them in order of higest Y to lowest (start clearing lines from the bottom of the board)
     const ys = [...new Set(this.currentShape.currentPoints.map(p => p[1]))].sort().reverse();
@@ -215,7 +197,6 @@ module.exports = class Board {
 
     // loop through cleared lines, move the lines above down by one
     for (const originalY of ys) {
-
       // if we cleared any lines, we need to adjust where we're looking for the next cleared line
       const y = originalY + linesCleared;
 
@@ -232,7 +213,6 @@ module.exports = class Board {
 
         // move lines above cleared lines down, point by point
         for (const p of this.occupiedPoints.filter(op => op[1] < y)) {
-
           const sp = this.screen.get({ x: p[0], y: p[1] });
 
           erasePoints.push([p[0], p[1]]); // pass values of, not the ref to p, because we modify the position on the next line
@@ -240,15 +220,11 @@ module.exports = class Board {
           p[1] += 1; // update the point location
 
           this.screen.put({ x: p[0], y: p[1], attr: sp.attr }, sp.char); // draw the point in its new location
-
         }
-
       }
-
     }
 
     if (linesCleared > 0) {
-
       for (const ep of erasePoints) {
         if (!this.isPointOccupied(ep)) {
           this.screen.d(...ep, ' '); // erase the point
@@ -259,21 +235,18 @@ module.exports = class Board {
 
       this.screen.render();
 
-      // eslint-disable-next-line no-param-reassign, no-unused-vars
+      // eslint-disable-next-line no-unused-vars
       gameOver = false; // give them another chance if they cleared lines...
-
     }
-
   }
 
   lockShape() {
-
     let gameOver = false;
 
     this.occupiedPoints.push(...this.currentShape.currentPoints);
 
     // check if game over.  if lowest y value (highest point of shape) is outside of top border, it's curtains! (probably)
-    if (Math.min(...this.currentShape.currentPoints.map(p => p[1])) <= this.top) { // eslint-disable-line max-depth
+    if (Math.min(...this.currentShape.currentPoints.map(p => p[1])) <= this.top) {  
       gameOver = true;
     }
 
@@ -287,13 +260,11 @@ module.exports = class Board {
     else {
       this.startNewShape();
     }
-
   }
 
-  factorial(n) { return !(n > 1) ? 1 : this.factorial(n - 1) * n; } // eslint-disable-line no-negated-condition
+  factorial(n) { return !(n > 1) ? 1 : this.factorial(n - 1) * n; }  
 
   pause() {
-
     const txtPaused = 'Game paused by you';
 
     if (this.game.paused) {
@@ -301,21 +272,17 @@ module.exports = class Board {
       this.screen.d(24, 21, txtPaused, { color: 'brightRed' });
     }
     else {
-
       this.resetAutoMoveTimer();
 
       for (let i = 0; i < txtPaused.length; i++) {
         this.screen.d(24 + i, 21, ' ');
       }
-
     }
 
     this.screen.render();
-
   }
 
   holdShape() {
-
     if (this.currentShape.held || this.game.paused) {
       // current shape cannot be held more than once
       return;
@@ -341,7 +308,6 @@ module.exports = class Board {
 
     // release the currently held shape if it exists, otherwise start a new shape
     if (copyHeldShape) {
-
       this.drawBottomBorder(); // reset bottom border indicator
 
       this.currentShape = copyHeldShape;
@@ -354,7 +320,6 @@ module.exports = class Board {
       this.screen.render();
 
       this.resetAutoMoveTimer();
-
     }
     else {
       this.startNewShape();
@@ -362,11 +327,9 @@ module.exports = class Board {
 
     this.drawHeldShape(this.heldShape.shapeType, false, true);
     this.screen.render();
-
   }
 
   drawHeldShape(shapeType, clear, isHold) {
-
     if (!this.isMainBoard) {
       return;
     }
@@ -407,19 +370,15 @@ module.exports = class Board {
       p[1] += boxOffsetY + 3;
       this.drawShapePoint(p, i, clear, s.color);
     }
-
   }
 
   drawShapePoint(p, i, clear, bgColor, color = 'black') {
-
     // don't draw if point is outside of bounds
     if (p[1] > this.top) {
-
       if (clear) {
         this.screen.d(...p, ' ');
       }
       else {
-
         const content = i % 2 === 0 ? '[' : ']';
 
         if (this.screen.colorEnabled) {
@@ -428,11 +387,8 @@ module.exports = class Board {
         else {
           this.screen.put({ x: p[0], y: p[1], attr: { inverse: true } }, content);
         }
-
       }
-
     }
-
   }
 
   stopAutoMoveTimer() {
@@ -443,6 +399,4 @@ module.exports = class Board {
     this.stopAutoMoveTimer();
     this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
   }
-
 };
-

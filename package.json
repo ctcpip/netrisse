@@ -11,6 +11,8 @@
     "terminal-kit": "^3.0.0"
   },
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "eslint . && node ./test/algorithm-test.js"
   },
   "repository": {
@@ -24,7 +26,8 @@
   },
   "homepage": "https://github.com/ctcpip/netrisse#readme",
   "devDependencies": {
-    "eslint": "^8.23.1"
+    "@stylistic/eslint-plugin-js": "^2.1.0",
+    "eslint": "^9.3.0"
   },
   "pkg": {
     "assets": "node_modules/terminal-kit/**/*"

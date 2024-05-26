@@ -1,5 +1,3 @@
-/* eslint-disable guard-for-in */
-
 const Rando = require('./rando');
 
 const shapes = [0, 1, 2, 3, 4, 5, 6];
@@ -7,23 +5,19 @@ const OLD_SHAPE_THRESHOLD = 21; // the number of turns a shape hasn't been seen 
 const logStuff = false;
 
 function getOldestShape(shapeLastSeen) {
-
   let oldestTurns = 0;
   let oldestShape;
 
   for (const s in shapeLastSeen) {
-
     const turns = shapeLastSeen[s];
 
     if (turns > oldestTurns) {
       oldestTurns = turns;
       oldestShape = s;
     }
-
   }
 
   return oldestTurns >= OLD_SHAPE_THRESHOLD ? oldestShape : null;
-
 }
 
 function log(t) {
@@ -41,7 +35,6 @@ module.exports = {
    * - if the random shape is the same as the last shape, try to get a different shape
    */
   *frustrationFree(seed) {
-
     const rando = new Rando(seed);
 
     let lastShape;
@@ -57,7 +50,6 @@ module.exports = {
     };
 
     while (true) {
-
       let shape;
 
       shape = rando.getRandomNumber(shapes.length);
@@ -66,20 +58,16 @@ module.exports = {
 
       // if we have a shape that hasn't been seen in a while, try to get it
       if (oldestShape && oldestShape !== shape) {
-
         log(`haven't seen shape ${oldestShape} in a while...`);
 
         // try up to three times to get the old shape
         for (let i = 0; i < 3; i++) {
-
           shape = rando.getRandomNumber(shapes.length);
 
           if (shape === oldestShape) {
             break;
           }
-
         }
-
       }
 
       // if shape is same as the last one, try to get a different shape
@@ -89,7 +77,6 @@ module.exports = {
       }
 
       for (const s in shapeLastSeen) {
-
         if (parseInt(s) === shape) {
           shapeLastSeen[s] = 0;
         }
@@ -103,9 +90,7 @@ module.exports = {
       log(`yielded shape ${shape}`);
 
       yield shape;
-
     }
-
   },
 
   /**
@@ -115,14 +100,12 @@ module.exports = {
    * - if the random shape is the same as the last shape, try up to 3x to get a different shape
    */
   *easy(seed) {
-
     const rando = new Rando(seed);
 
     let easyShapes = [];
     let lastShape;
 
     while (true) {
-
       if (easyShapes.length === 0) {
         // create a collection of 3x the shapes list
         easyShapes = shapes.concat(shapes, shapes);
@@ -133,21 +116,18 @@ module.exports = {
 
       // try up to three times to get a different shape than the previous shape
       for (let i = 0; i < 3; i++) {
-
         shapeIndex = rando.getRandomNumber(easyShapes.length);
         shape = easyShapes[shapeIndex];
 
         if (shape !== lastShape) {
           break;
         }
-
       }
 
       easyShapes.splice(shapeIndex, 1);
       lastShape = shape;
 
       yield shape;
-
     }
   },
 
@@ -158,14 +138,12 @@ module.exports = {
    * - if the random shape is the same as the last shape, try up to 3x to get a different shape
    */
   *tooEasy(seed) {
-
     const rando = new Rando(seed);
 
     let easyShapes = [];
     let lastShape;
 
     while (true) {
-
       if (easyShapes.length === 0) {
         easyShapes = [...shapes];
         shuffle(easyShapes, rando);
@@ -175,32 +153,27 @@ module.exports = {
 
       // try up to three times to get a different shape than the previous shape
       for (let i = 0; i < 3; i++) {
-
         shapeIndex = rando.getRandomNumber(easyShapes.length);
         shape = easyShapes[shapeIndex];
 
         if (shape !== lastShape) {
           break;
         }
-
       }
 
       easyShapes.splice(shapeIndex, 1);
       lastShape = shape;
 
       yield shape;
-
     }
   },
   *random(seed) {
-
     const rando = new Rando(seed);
 
     while (true) {
       yield rando.getRandomNumber(shapes.length);
     }
-
-  }
+  },
 };
 
 function shuffle(arr, rando) {

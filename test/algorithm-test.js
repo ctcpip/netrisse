@@ -1,5 +1,3 @@
-/* eslint-disable guard-for-in */
-
 const { easy, frustrationFree, random, tooEasy } = require('../algorithms');
 const MersenneTwister = require('mersenne-twister');
 
@@ -21,7 +19,6 @@ function logDistribution(distribution) { // eslint-disable-line no-unused-vars
 }
 
 function getRandomStandardDeviation() {
-
   const algo = random(seed);
 
   const distribution = {
@@ -41,11 +38,9 @@ function getRandomStandardDeviation() {
   // logDistribution(distribution);
 
   return Math.floor(getStandardDeviation(Object.values(distribution)));
-
 }
 
 function getEasyStandardDeviation() {
-
   const algo = easy(seed);
 
   const distribution = {
@@ -65,11 +60,9 @@ function getEasyStandardDeviation() {
   // logDistribution(distribution);
 
   return Math.floor(getStandardDeviation(Object.values(distribution)));
-
 }
 
 function getTooEasyStandardDeviation() {
-
   const algo = tooEasy(seed);
 
   const distribution = {
@@ -89,11 +82,9 @@ function getTooEasyStandardDeviation() {
   // logDistribution(distribution);
 
   return Math.floor(getStandardDeviation(Object.values(distribution)));
-
 }
 
 function getFFStandardDeviation() {
-
   const algo = frustrationFree(seed);
 
   const distribution = {
@@ -113,7 +104,6 @@ function getFFStandardDeviation() {
   // logDistribution(distribution);
 
   return Math.floor(getStandardDeviation(Object.values(distribution)));
-
 }
 
 let acceptableDeviationLimit = 0;

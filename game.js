@@ -1,5 +1,4 @@
 module.exports = class Game {
-
   paused = false;
   boards = [];
 
@@ -9,13 +8,10 @@ module.exports = class Game {
   }
 
   pause() {
-
     this.paused = !this.paused;
 
     for (const b of this.boards) {
       b.pause();
     }
-
   }
-
 };

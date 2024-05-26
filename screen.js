@@ -2,9 +2,7 @@ const termkit = require('terminal-kit');
 const packageJSON = require('./package.json');
 
 module.exports = class Screen {
-
   constructor(colorEnabled, interval, seed) {
-
     this.colorEnabled = colorEnabled;
     this.term = termkit.terminal;
     this.term.windowTitle('Netrisse');
@@ -30,21 +28,18 @@ module.exports = class Screen {
 
     this.displayTime();
     this.timeDisplayTimeout = setTimeout(this.displayTime.bind(this), 1000);
-
   }
 
   /**
  * draw
  */
   d(x, y, content, { color = 'white', bgColor = 'black' } = { color: 'white', bgColor: 'black' }) {
-
     if (this.colorEnabled) {
       this.screen.put({ x, y, attr: { color, bgColor } }, content);
     }
     else {
       this.screen.put({ x, y }, content);
     }
-
   }
 
   render() {
@@ -60,20 +55,16 @@ module.exports = class Screen {
   }
 
   displayTime() {
-
     const date = new Date();
     const options = {
       hour: 'numeric',
       minute: 'numeric',
-      hour12: true
+      hour12: true,
     };
     const time = new Intl.DateTimeFormat('en', options).format(date);
 
     this.d(24, 22, time);
 
     this.render();
-
   }
-
 };
-

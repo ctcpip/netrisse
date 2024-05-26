@@ -1,5 +1,6 @@
 const shapeI =
-{ color: 'blue',
+{
+  color: 'blue',
   ghostColor: 17,
   points: [
     [ // horizontal
@@ -10,7 +11,7 @@ const shapeI =
       [1, 0],
       [2, 0],
       [3, 0],
-      [4, 0]
+      [4, 0],
     ],
     [ // vertical
       [-1, -2],
@@ -20,12 +21,14 @@ const shapeI =
       [-1, 0],
       [0, 0],
       [-1, 1],
-      [0, 1]
-    ]
-  ] };
+      [0, 1],
+    ],
+  ], 
+};
 
 const shapeJ =
-{ color: 'yellow',
+{
+  color: 'yellow',
   ghostColor: 58,
   points: [
     [ // horizontal 1
@@ -36,7 +39,7 @@ const shapeJ =
       [1, 0],
       [2, 0],
       [1, 1],
-      [2, 1]
+      [2, 1],
     ],
     [ // vertical 1
       [-1, -1],
@@ -68,10 +71,12 @@ const shapeJ =
       [-1, 1],
       [0, 1],
     ],
-  ] };
+  ], 
+};
 
 const shapeL =
-  { color: 'cyan',
+  {
+    color: 'cyan',
     ghostColor: 23,
     points: [
       [ // horizontal 1
@@ -82,7 +87,7 @@ const shapeL =
         [1, 0],
         [2, 0],
         [-3, 1],
-        [-2, 1]
+        [-2, 1],
       ],
       [ // vertical 1
         [-3, -1],
@@ -112,12 +117,14 @@ const shapeL =
         [-1, 1],
         [0, 1],
         [1, 1],
-        [2, 1]
+        [2, 1],
       ],
-    ] };
+    ], 
+  };
 
 const shapeO =
-  { color: 'magenta',
+  {
+    color: 'magenta',
     ghostColor: 53,
     points: [
       [
@@ -129,11 +136,13 @@ const shapeO =
         [-2, 1],
         [-1, 1],
         [0, 1],
-      ]
-    ] };
+      ],
+    ], 
+  };
 
 const shapeS =
-  { color: 'green',
+  {
+    color: 'green',
     ghostColor: 22,
     points: [
       [ // horizontal
@@ -144,7 +153,7 @@ const shapeS =
         [1, 0],
         [2, 0],
         [-1, 1],
-        [0, 1]
+        [0, 1],
       ],
       [ // vertical
         [-1, 0],
@@ -156,10 +165,12 @@ const shapeS =
         [1, 2],
         [2, 2],
       ],
-    ] };
+    ], 
+  };
 
 const shapeT =
-  { color: 'white',
+  {
+    color: 'white',
     ghostColor: 237,
     points: [
       [ // horizontal 1
@@ -170,7 +181,7 @@ const shapeT =
         [1, 0],
         [2, 0],
         [-1, 1],
-        [0, 1]
+        [0, 1],
       ],
       [ // vertical 1
         [-1, -1],
@@ -202,10 +213,12 @@ const shapeT =
         [-1, 1],
         [0, 1],
       ],
-    ] };
+    ], 
+  };
 
 const shapeZ =
-  { color: 'red',
+  {
+    color: 'red',
     ghostColor: 52,
     points: [
       [ // horizontal
@@ -228,7 +241,8 @@ const shapeZ =
         [-1, 0],
         [0, 0],
       ],
-    ] };
+    ], 
+  };
 
 const shapes = Object.freeze([
   shapeI,

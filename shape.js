@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-
 const { shapes } = require('./shapes');
 const directions = require('./directions');
 
@@ -24,7 +22,6 @@ module.exports = class Shape {
    * start a new random shape
    */
   static createNewShape(screen, board, shapeType) {
-
     const s = new Shape(screen, board, shapeType);
 
     s.setInitialPosition();
@@ -33,11 +30,9 @@ module.exports = class Shape {
     s.screen.render();
 
     return s;
-
   }
 
   draw(clear) {
-
     for (let i = 0; i < this.currentPoints.length; i++) {
       const p = this.currentPoints[i];
       this.board.drawShapePoint(p, i, clear, this.color);
@@ -48,11 +43,9 @@ module.exports = class Shape {
     for (const x of xPointsForIndicator) {
       this.board.setIndicator(x, clear);
     }
-
   }
 
   drawGhost(clear) {
-
     const { canMove, dropGhostShapePoints } = this.getDownDropGhostPositions();
 
     if (canMove || clear) {
@@ -61,15 +54,13 @@ module.exports = class Shape {
         this.board.drawShapePoint(p, i, clear, this.ghostColor, 'black');
       }
     }
-
   }
 
   setInitialPosition() {
-
     [this.currentPoints] = structuredClone(this.points);
 
     // center of the board
-    const x = ((this.board.right + this.board.left + 1) / 2) + 1; // eslint-disable-line no-extra-parens
+    const x = ((this.board.right + this.board.left + 1) / 2) + 1;  
 
     let y = this.board.top;
 
@@ -88,11 +79,9 @@ module.exports = class Shape {
       p[0] += x;
       p[1] += y;
     }
-
   }
 
   getDownDropGhostPositions() {
-
     let offsetY = 0;
     let dropGhostOffsetY = 0;
 
@@ -138,11 +127,9 @@ module.exports = class Shape {
     });
 
     return { canMove: returnCanMove, newShapePoints, dropGhostShapePoints, offsetY, dropGhostOffsetY };
-
   }
 
-  move(direction) { // eslint-disable-line complexity
-
+  move(direction) {
     if (this.board.gameOver || this.board.game.paused) {
       return;
     }
@@ -187,11 +174,10 @@ module.exports = class Shape {
             }
           }
 
-          if ((direction === directions.AUTO && !canMove) || direction === directions.DROP) { // eslint-disable-line no-extra-parens
+          if ((direction === directions.AUTO && !canMove) || direction === directions.DROP) {  
             // only lock when auto-moved or dropped
             lockShape = true;
           }
-
         }
 
         break;
@@ -227,10 +213,8 @@ module.exports = class Shape {
 
       case directions.ROTATE_LEFT:
       {
-
         // o shape can't rotate
         if (this.points.length > 1) {
-
           const newSelectedPoints = this.direction === 0 ? this.points.length - 1 : this.direction - 1;
           newShapePoints = structuredClone(this.points[newSelectedPoints]);
 
@@ -250,7 +234,6 @@ module.exports = class Shape {
           if (canMove) {
             this.direction = newSelectedPoints;
           }
-
         }
 
         break;
@@ -261,7 +244,6 @@ module.exports = class Shape {
     }
 
     if (canMove) {
-
       this.drawGhost(true);
       this.draw(true);
       this.currentPoints = newShapePoints;
@@ -283,7 +265,6 @@ module.exports = class Shape {
         default:
           break;
       }
-
     }
 
     if (lockShape) {
@@ -291,8 +272,5 @@ module.exports = class Shape {
     }
 
     this.board.concurrentExecutions -= 1;
-
   }
-
 };
-

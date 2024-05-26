@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-
 const Board = require('./board');
 const Screen = require('./screen');
 const Game = require('./game');
@@ -32,7 +30,6 @@ if (players > 1) {
 }
 
 function quit() {
-
   for (const b of game.boards) {
     b.stopAutoMoveTimer();
   }
@@ -50,8 +47,7 @@ function writeDebugInfo() { // eslint-disable-line no-unused-vars
   console.log(JSON.stringify(board.moves));
 }
 
-screen.term.on('key', name => { // eslint-disable-line complexity
-
+screen.term.on('key', name => {
   switch (name) {
     case 'j':
     case 'J':
@@ -93,5 +89,4 @@ screen.term.on('key', name => { // eslint-disable-line complexity
     default:
       break;
   }
-
 });
