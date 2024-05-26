@@ -11,9 +11,10 @@
     "terminal-kit": "^3.0.0"
   },
   "scripts": {
+    "circles": "madge --extensions js --circular .",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test": "eslint . && node ./test/algorithm-test.js"
+    "lint:fix": "eslint --fix .",
+    "test": "npm run lint && npm run circles && node ./test/algorithm-test.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,8 @@
   "homepage": "https://github.com/ctcpip/netrisse#readme",
   "devDependencies": {
     "@stylistic/eslint-plugin-js": "^2.1.0",
-    "eslint": "^9.3.0"
+    "eslint": "^9.3.0",
+    "madge": "^7.0.0"
   },
   "pkg": {
     "assets": "node_modules/terminal-kit/**/*"
