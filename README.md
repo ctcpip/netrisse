@@ -14,15 +14,6 @@ a network version of tetris for the console/terminal
 
 Netrisse is an enhanced reverse-engineered clone of __[netris](https://web.archive.org/web/20070215202226/http://portsmon.freebsd.org/portoverview.py?category=games&portname=netris)__, itself a clone of tetris.
 
-## stuff nobody cares about
-
-this project uses...
-
-* [Terminal Kit](https://github.com/cronvel/terminal-kit)
-* [Mersenne Twister](https://github.com/boo1ean/mersenne-twister)
-* [ESLint](https://github.com/eslint/eslint)
-* [semantic versioning](https://semver.org/)
-
 ## license
 
-[GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) ☭
