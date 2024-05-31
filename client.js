@@ -38,7 +38,7 @@ module.exports = class NetrisseClient {
   }
 
   disconnect() {
-    this.ws.close(4333, JSON.stringify({ playerID: this.playerID, gameID: this.gameID }));
+    this.ws.close(4333, JSON.stringify({ type: this.messageTypeEnum.QUIT, playerID: this.playerID, gameID: this.gameID }));
   }
 
   sendMessage(o = {}, type) {

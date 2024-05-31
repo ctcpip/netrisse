@@ -64,27 +64,37 @@ module.exports = class Game {
   }
 
   sendJunk(junkLines) {
-    if (this.boards.length === 1) {
-      return;
-    }
+    let toBoard;
 
-    let lowestBoard;
-    let lowestBoardY = 0;
+    switch (this.boards.length) {
+      case 1:
+        return;
+      case 2:
+        // if only two players, then junk lines always go to the other player
+        toBoard = this.boards[1];
+        break;
+      default: {
+        let lowestBoardY = 0;
 
-    // give junk to player with the lowest board pieces
+        // give junk to player with the lowest board pieces
 
-    // skip main board (index 0)
-    for (let i = 1; i < this.boards.length; i++) {
-      const b = this.boards[i];
+        // skip main board (index 0)
+        for (let i = 1; i < this.boards.length; i++) {
+          const b = this.boards[i];
 
-      const lowestY = b.getHighestOccupiedPoint();
+          const lowestY = b.getHighestOccupiedPoint();
 
-      if (lowestY > lowestBoardY) {
-        lowestBoardY = lowestY;
-        lowestBoard = b;
+          if (lowestY > lowestBoardY) {
+            lowestBoardY = lowestY;
+            toBoard = b;
+          }
+        }
+
+        break;
       }
     }
 
-    this.client.sendMessage({ junkLines, toPlayerID: lowestBoard.playerID }, this.client.messageTypeEnum.JUNK);
+    this.client.sendMessage({ junkLines, toPlayerID: toBoard.playerID }, this.client.messageTypeEnum.JUNK);
+    toBoard.receiveJunk(junkLines);
   }
 };

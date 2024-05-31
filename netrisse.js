@@ -87,6 +87,9 @@ const NetrisseClient = require('./client');
         case client.messageTypeEnum.PAUSE:
           game.pause(true, message.playerID, true);
           break;
+        case client.messageTypeEnum.QUIT:
+          // do something
+          break;
         case client.messageTypeEnum.SEED:
           seedFromServer = message.seed;
           break;
@@ -148,25 +151,25 @@ const NetrisseClient = require('./client');
       case 'j':
       case 'J':
       case 'LEFT':
-        board.currentShape.move(directions.LEFT);
+        board.currentShape?.move(directions.LEFT);
         break;
       case 'k':
       case 'K':
       case 'UP':
-        board.currentShape.move(directions.ROTATE_LEFT);
+        board.currentShape?.move(directions.ROTATE_LEFT);
         break;
       case 'l':
       case 'L':
       case 'RIGHT':
-        board.currentShape.move(directions.RIGHT);
+        board.currentShape?.move(directions.RIGHT);
         break;
       case ' ':
-        board.currentShape.move(directions.DROP);
+        board.currentShape?.move(directions.DROP);
         break;
       case 'm':
       case 'M':
       case 'DOWN':
-        board.currentShape.move(directions.DOWN);
+        board.currentShape?.move(directions.DOWN);
         break;
       case 'h':
       case 'H':
