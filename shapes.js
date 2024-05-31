@@ -23,7 +23,7 @@ const shapeI =
       [-1, 1],
       [0, 1],
     ],
-  ], 
+  ],
 };
 
 const shapeJ =
@@ -71,7 +71,7 @@ const shapeJ =
       [-1, 1],
       [0, 1],
     ],
-  ], 
+  ],
 };
 
 const shapeL =
@@ -119,7 +119,7 @@ const shapeL =
         [1, 1],
         [2, 1],
       ],
-    ], 
+    ],
   };
 
 const shapeO =
@@ -137,7 +137,7 @@ const shapeO =
         [-1, 1],
         [0, 1],
       ],
-    ], 
+    ],
   };
 
 const shapeS =
@@ -165,7 +165,7 @@ const shapeS =
         [1, 2],
         [2, 2],
       ],
-    ], 
+    ],
   };
 
 const shapeT =
@@ -213,7 +213,7 @@ const shapeT =
         [-1, 1],
         [0, 1],
       ],
-    ], 
+    ],
   };
 
 const shapeZ =
@@ -241,7 +241,7 @@ const shapeZ =
         [-1, 0],
         [0, 0],
       ],
-    ], 
+    ],
   };
 
 const shapes = Object.freeze([

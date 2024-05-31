@@ -60,7 +60,7 @@ module.exports = class Shape {
     [this.currentPoints] = structuredClone(this.points);
 
     // center of the board
-    const x = ((this.board.right + this.board.left + 1) / 2) + 1;  
+    const x = ((this.board.right + this.board.left + 1) / 2) + 1;
 
     let y = this.board.top;
 
@@ -130,7 +130,7 @@ module.exports = class Shape {
   }
 
   move(direction) {
-    if (this.board.gameOver || this.board.game.paused) {
+    if (this.board.gameOver || this.board.game.isPaused) {
       return;
     }
 
@@ -178,7 +178,7 @@ module.exports = class Shape {
             }
           }
 
-          if ((direction === directions.AUTO && !canMove) || direction === directions.DROP) {  
+          if ((direction === directions.AUTO && !canMove) || direction === directions.DROP) {
             // only lock when auto-moved or dropped
             lockShape = true;
           }
