@@ -29,8 +29,8 @@
   },
   "homepage": "https://github.com/ctcpip/netrisse#readme",
   "devDependencies": {
-    "@stylistic/eslint-plugin-js": "^2.1.0",
     "eslint": "^9.3.0",
+    "eslint-config-ultra-mega": "^1.2.0",
     "madge": "^7.0.0"
   },
   "pkg": {
