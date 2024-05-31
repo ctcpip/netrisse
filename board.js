@@ -1,6 +1,11 @@
 const { shapes } = require('./shapes');
 const Shape = require('./shape');
 const directions = require('./directions');
+const Rando = require('./rando');
+
+const BOARD_WIDTH = 20;
+
+// TODO: write game code above board in amber color
 
 module.exports = class Board {
   currentShape;
@@ -24,6 +29,7 @@ module.exports = class Board {
     this.game = game;
     this.algorithm = game.algorithm(seed);
     this.playerID = playerID;
+    this.rando = new Rando(seed);
 
     if (this.isMainBoard) {
       this.nextBox = {};
@@ -199,7 +205,7 @@ module.exports = class Board {
 
       const linePoints = this.occupiedPoints.filter(op => op[1] === y);
 
-      if (linePoints.length === 20) {
+      if (linePoints.length === BOARD_WIDTH) {
         // line is full; clear it
         erasePoints.push(...linePoints);
 
@@ -315,7 +321,7 @@ module.exports = class Board {
   }
 
   holdShape() {
-    if (this.currentShape.held || this.game.isPaused) {
+    if (this.currentShape?.held || this.game.isPaused) {
       // current shape cannot be held more than once
       return;
     }
@@ -445,13 +451,48 @@ module.exports = class Board {
     return Math.min(...this.occupiedPoints.map(op => op[1]));
   }
 
-  receiveJunk(junkLines) { // eslint-disable-line no-unused-vars
-    // move all occupied points up by junkLines
-    // clear junkLines points
+  receiveJunk(junkLines) {
+    const erasePoints = [];
 
-    // make junk holes align, with x chosen randomly, except the y above the top hole must be occupied
-    // add to occupied points
-    // draw junk lines
+    this.currentShape.drawGhost(true);
+
+    // move lines up, point by point
+    for (const p of this.occupiedPoints) {
+      const sp = this.screen.get({ x: p[0], y: p[1] });
+
+      erasePoints.push([p[0], p[1]]); // pass values of, not the ref to p, because we modify the position on the next line
+
+      p[1] -= junkLines; // update the point location
+
+      this.screen.put({ x: p[0], y: p[1], attr: sp.attr }, sp.char); // draw the point in its new location
+    }
+
+    // depending on whether a board's border is odd or even, affects:
+    // 1. where we need to calculate for the junk hole
+    // 2. the characters used for drawing junk shapes
+    const startingXIsOdd = this.left % 2 === 0;
+
+    // make junk holes align, with x chosen randomly
+    const holeX = this.rando.getRandomOddOrEvenNumber(this.left, this.right, startingXIsOdd);
+
+    for (let y = this.bottom - junkLines; y < this.bottom; y++) {
+      for (let x = this.left + 1; x < this.right; x++) {
+        if (x !== holeX && x !== holeX + 1) {
+          const p = [x, y];
+          this.occupiedPoints.push(p);
+          this.drawShapePoint(p, x - (startingXIsOdd ? 1 : 0), false, 'grey');
+        }
+      }
+    }
+
+    for (const ep of erasePoints) {
+      if (!this.isPointOccupied(ep)) {
+        this.screen.d(...ep, ' '); // erase the point
+      }
+    }
+
+    this.currentShape.drawGhost();
+    this.screen.render();
   }
 
   get isMainBoard() {
