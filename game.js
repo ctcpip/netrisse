@@ -1,3 +1,5 @@
+const { messageTypeEnum } = require('netrisse-lib');
+
 module.exports = class Game {
   pauses = []; // array of player ids
   boards = [];
@@ -10,7 +12,7 @@ module.exports = class Game {
     this.currentPlayerID = currentPlayerID;
   }
 
-  pause(isPausing, playerID, isRemote) {
+  pause(isPausing, playerID) {
     const previousPauses = this.pauses.length;
 
     if (isPausing) {
@@ -37,16 +39,16 @@ module.exports = class Game {
         this.start();
       }
 
-      this.togglePauseBoard(isRemote);
+      this.togglePauseBoard();
     }
     else if (previousPauses === 0 && this.pauses.length > 0) {
-      this.togglePauseBoard(isRemote);
+      this.togglePauseBoard();
     }
   }
 
-  togglePauseBoard(isRemote) {
+  togglePauseBoard() {
     // no need to call pause() on the other player boards
-    this.boards[0].pause(isRemote);
+    this.boards[0].pause();
   }
 
   get isPaused() {
@@ -94,7 +96,11 @@ module.exports = class Game {
       }
     }
 
-    this.client.sendMessage({ junkLines, toPlayerID: toBoard.playerID }, this.client.messageTypeEnum.JUNK);
+    this.client.sendMessage(messageTypeEnum.JUNK, { junkLines, toPlayerID: toBoard.playerID });
     toBoard.receiveJunk(junkLines);
+  }
+
+  gameOver() {
+    this.boards.forEach(b => b.quit(true));
   }
 };

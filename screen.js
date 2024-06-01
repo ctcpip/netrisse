@@ -19,7 +19,7 @@ module.exports = class Screen {
       this.screen.fill({ attr: { bgDefaultColor: true } });
     }
 
-    this.d(0, 0, `Netrisse ${packageJSON.version} (C) 2022  Chris de Almeida           "netrisse -h" for more info`);
+    this.d(0, 0, `Netrisse ${packageJSON.version} (C) 2016  Chris de Almeida           "netrisse -h" for more info`);
 
     this.term.grabInput();
 
