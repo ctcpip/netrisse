@@ -1,10 +1,10 @@
-const Board = require('./board');
+const Board = require('./src/board');
 const Screen = require('./screen');
 const Game = require('./game');
-const directions = require('./directions');
-const algorithms = require('./algorithms');
+const directions = require('./src/directions');
+const algorithms = require('./src/algorithms');
 const MersenneTwister = require('mersenne-twister');
-const NetrisseClient = require('./client');
+const NetrisseClient = require('./src/client');
 const { debug, messageTypeEnum } = require('netrisse-lib');
 const withResolvers = require('promise.withresolvers');
 

@@ -1,5 +1,5 @@
-const { shapes } = require('./shapes');
-const Shape = require('./shape');
+const { shapes } = require('../shapes');
+const Shape = require('../shape');
 const directions = require('./directions');
 const Rando = require('./rando');
 const { messageTypeEnum } = require('netrisse-lib');

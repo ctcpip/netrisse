@@ -1,5 +1,5 @@
 const { shapes } = require('./shapes');
-const directions = require('./directions');
+const directions = require('./src/directions');
 const { messageTypeEnum } = require('netrisse-lib');
 
 module.exports = class Shape {
