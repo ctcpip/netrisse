@@ -1,5 +1,5 @@
 const termkit = require('terminal-kit');
-const packageJSON = require('./package.json');
+const packageJSON = require('../package.json');
 
 module.exports = class Screen {
   constructor(colorEnabled, interval, seed) {

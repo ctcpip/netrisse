@@ -2,9 +2,9 @@
   "name": "netrisse",
   "description": "a network version of tetris for the console/terminal",
   "version": "2.0.0",
-  "main": "netrisse.js",
+  "main": "./src/netrisse.js",
   "bin": {
-    "netrisse": "./netrisse.js"
+    "netrisse": "./src/netrisse.js"
   },
   "dependencies": {
     "mersenne-twister": "^1.1.0",

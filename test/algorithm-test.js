@@ -1,4 +1,4 @@
-const { easy, frustrationFree, random, tooEasy } = require('../algorithms');
+const { easy, frustrationFree, random, tooEasy } = require('../src/algorithms');
 const MersenneTwister = require('mersenne-twister');
 
 const seed = new MersenneTwister().random_int();

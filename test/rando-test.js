@@ -1,5 +1,5 @@
 const MersenneTwister = require('mersenne-twister');
-const Rando = require('../rando');
+const Rando = require('../src/rando');
 const assert = require('node:assert');
 
 const seed = new MersenneTwister().random_int();
