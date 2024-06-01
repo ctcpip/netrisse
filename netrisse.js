@@ -5,6 +5,10 @@ const directions = require('./directions');
 const algorithms = require('./algorithms');
 const MersenneTwister = require('mersenne-twister');
 const NetrisseClient = require('./client');
+const { debug, messageTypeEnum } = require('netrisse-lib');
+const withResolvers = require('promise.withresolvers');
+
+withResolvers.shim();
 
 (async () => {
   // multiplayer game modes:  battle (default), friendly
@@ -22,7 +26,7 @@ const NetrisseClient = require('./client');
 
   const mainBoardPosition = [2, 21, 23, 0]; // top, right, bottom, left
 
-  let seed = new MersenneTwister().random_int();
+  const seed = new MersenneTwister().random_int();
   // const seed = 3103172451;
 
   let thisPlayerIsPaused = false;
@@ -31,7 +35,7 @@ const NetrisseClient = require('./client');
   let players = 1;
   players += 1;
 
-  let client, game, screen; // eslint-disable-line prefer-const
+  let client, game, screen, promiseSeed, resolveSeed, rejectSeed, seedFromServer; // eslint-disable-line prefer-const
 
   if (players > 1) {
     client = new NetrisseClient('snoofism');
@@ -39,88 +43,79 @@ const NetrisseClient = require('./client');
 
     thisPlayerID = client.playerID;
 
-    let seedFromServer;
+    // todo: add timeout to call rejectSeed
+    ({ promise: promiseSeed, resolve: resolveSeed, reject: rejectSeed } = Promise.withResolvers()); // eslint-disable-line no-unused-vars
 
     client.ws.on('message', async rawData => {
-      // QUIT: 4, client
-      // QUIT: 4, server
-
+      debug(`${thisPlayerID} got ${rawData}`);
       const message = JSON.parse(rawData);
 
       // need to change to use the correct board for the player who sent the message
       switch (message.type) {
-        case client.messageTypeEnum.CONNECT:
+        case messageTypeEnum.CONNECT:
         {
-          await retry(0.25, 100, () => !game); // nasty, fix
-
-          if (!game) {
-            throw new Error('sadness :(');
-          }
+          seedFromServer = await promiseSeed;
 
           for (const p of message.players) {
             if (p !== thisPlayerID) {
               const xOffset = 1;
               const boardPosition = [mainBoardPosition[0], (mainBoardPosition[1] * 3) + xOffset, mainBoardPosition[2], (mainBoardPosition[1] * 2) + xOffset];
-              const b = new Board(...boardPosition, screen, game, seed);
+              const b = new Board(...boardPosition, screen, game, seedFromServer);
               game.boards.push(b);
-              game.pause(true, p, true);
+              game.pause(true, p);
             }
           }
 
           break;
         }
 
-        case client.messageTypeEnum.DIRECTION:
+        case messageTypeEnum.DIRECTION:
           game.boards[1].currentShape.move(message.direction);
           break;
-        case client.messageTypeEnum.HOLD:
+        case messageTypeEnum.GAME_OVER:
+          game.gameOver();
+          quit();
+          break;
+        case messageTypeEnum.HOLD:
           game.boards[1].holdShape();
           break;
 
-        case client.messageTypeEnum.JUNK:
+        case messageTypeEnum.JUNK:
         {
           const b = game.boards.find(b2 => b2.playerID === message.toPlayerID);
           b.receiveJunk(message.junkLines);
           break;
         }
 
-        case client.messageTypeEnum.PAUSE:
-          game.pause(true, message.playerID, true);
+        case messageTypeEnum.PAUSE:
+          game.pause(true, message.playerID);
           break;
-        case client.messageTypeEnum.QUIT:
-          // do something
+        case messageTypeEnum.QUIT:
+          game.boards[1].quit();
           break;
-        case client.messageTypeEnum.SEED:
-          seedFromServer = message.seed;
+        case messageTypeEnum.SEED:
+          resolveSeed(message.seed);
           break;
-        case client.messageTypeEnum.UNPAUSE:
-          game.pause(false, message.playerID, true);
+        case messageTypeEnum.UNPAUSE:
+          game.pause(false, message.playerID);
           break;
         default:
           throw new Error(`unsupported message type: ${message.type}`);
       }
     });
-
-    await retry(0.25, 100, () => !seedFromServer); // nasty, fix
-
-    if (seedFromServer) {
-      seed = seedFromServer;
-    }
-    else {
-      throw new Error('unable to get seed from server :(');
-    }
   }
 
-  screen = new Screen(colorEnabled, interval, seed);
+  seedFromServer = await promiseSeed;
+  screen = new Screen(colorEnabled, interval, seedFromServer);
   game = new Game(interval, algorithms.frustrationFree, client, thisPlayerID);
-  const board = new Board(...mainBoardPosition, screen, game, seed);
+  const board = new Board(...mainBoardPosition, screen, game, seedFromServer);
 
   game.boards.push(board);
 
   if (players > 1) {
     // for a multi-player game, pause at the start to allow players to join
     thisPlayerIsPaused = true;
-    game.pause(true, thisPlayerID, false);
+    game.pause(true, thisPlayerID);
   }
 
   function quit() {
@@ -181,10 +176,10 @@ const NetrisseClient = require('./client');
       {
         thisPlayerIsPaused = !thisPlayerIsPaused;
 
-        const messageType = thisPlayerIsPaused ? client.messageTypeEnum.PAUSE : client.messageTypeEnum.UNPAUSE;
+        const messageType = thisPlayerIsPaused ? messageTypeEnum.PAUSE : messageTypeEnum.UNPAUSE;
 
-        client?.sendMessage({}, messageType);
-        game.pause(thisPlayerIsPaused, thisPlayerID, false);
+        client?.sendMessage(messageType, {});
+        game.pause(thisPlayerIsPaused, thisPlayerID);
         break;
       }
 
@@ -198,29 +193,4 @@ const NetrisseClient = require('./client');
         break;
     }
   });
-
-  /**
- * Retry a function until it returns false, or timeout expires
- * @param {number} timeout fractional minutes - length of time to retry
- * @param {number} pauseRate milliseconds - time to pause between retries (frequency)
- * @param {function} retryFunction function to retry - must return a boolean - function will be retried until it returns false
-*/
-  async function retry(timeout, pauseRate, retryFunction) {
-    const start = new Date();
-
-    while (new Date() - start < timeout * 60000 && await retryFunction()) {
-      await pause(pauseRate);
-    }
-  }
-
-  /**
- * Pause thread for an amount of time
- * @param {number} ms milliseconds to pause
- * @returns {promise}
- * @example
- * await pause(1 * 1000); // pause for 1 second
-*/
-  function pause(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 })();

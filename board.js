@@ -2,6 +2,7 @@ const { shapes } = require('./shapes');
 const Shape = require('./shape');
 const directions = require('./directions');
 const Rando = require('./rando');
+const { messageTypeEnum } = require('netrisse-lib');
 
 const BOARD_WIDTH = 20;
 
@@ -52,6 +53,10 @@ module.exports = class Board {
         this.currentShape.move(direction);
       }
     }
+  }
+
+  get isMainBoard() {
+    return this.game.boards.length === 0 || this.game.boards[0] === this;
   }
 
   topBorder = '┏━━━━━━━━━━━━━━━━━━━━┓';
@@ -121,12 +126,12 @@ module.exports = class Board {
     this.screen.d(this.left, this.bottom, this.bottomBorder);
   }
 
-  drawGameOver() {
-    const lines = `IT'S CURTAINS FOR YOU!`.split(' ');
-    const firstLineY = Math.floor(this.bottom / 2) - 4;
+  drawGameOver(text) {
+    const lines = text.split(' ');
+    const firstLineY = Math.floor(this.bottom / 2) - 7;
 
     // clear out some space on the board
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 9; i++) {
       for (let i2 = this.left + 1; i2 < this.right; i2++) {
         this.screen.d(i2, firstLineY - 1 + i, ' ');
       }
@@ -136,6 +141,12 @@ module.exports = class Board {
     for (let i = 0; i < lines.length; i++) {
       const l = lines[i];
       this.screen.d(Math.ceil((this.right + this.left) / 2) - Math.ceil((l.length / 2)), firstLineY + i, l, { color: 'brightRed' });
+    }
+
+    const scoreLines = [`Score: ${this.score}`, `Lines: ${this.linesCleared}`];
+    for (let i = 0; i < scoreLines.length; i++) {
+      const l = scoreLines[i];
+      this.screen.d(Math.ceil((this.right + this.left) / 2) - Math.ceil((l.length / 2)), firstLineY + i + lines.length + 1, l);
     }
   }
 
@@ -279,7 +290,7 @@ module.exports = class Board {
 
     if (gameOver) {
       this.gameOver = true;
-      this.drawGameOver();
+      this.drawGameOver(`IT'S CURTAINS FOR YOU!`);
       this.screen.render();
     }
     else {
@@ -327,7 +338,7 @@ module.exports = class Board {
     }
 
     if (this.isMainBoard) {
-      this.game.client?.sendMessage({}, this.game.client.messageTypeEnum.HOLD);
+      this.game.client?.sendMessage(messageTypeEnum.HOLD);
     }
 
     this.stopAutoMoveTimer();
@@ -495,7 +506,15 @@ module.exports = class Board {
     this.screen.render();
   }
 
-  get isMainBoard() {
-    return this.game.boards.length === 0 || this.game.boards[0] === this;
+  quit(isGameOver) {
+    // they could quit before the game is started
+    if (this.game.started) {
+      this.clearLines(true);
+    }
+    const txt = isGameOver ? 'GAME OVER' : `PLAYER HAS QUIT 😿`;
+
+    this.gameOver = true;
+    this.drawGameOver(txt);
+    this.screen.render();
   }
 };

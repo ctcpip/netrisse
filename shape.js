@@ -1,5 +1,6 @@
 const { shapes } = require('./shapes');
 const directions = require('./directions');
+const { messageTypeEnum } = require('netrisse-lib');
 
 module.exports = class Shape {
   board;
@@ -135,7 +136,7 @@ module.exports = class Shape {
     }
 
     if (this.board.isMainBoard) {
-      this.board.game.client?.sendMessage({ direction }, this.board.game.client.messageTypeEnum.DIRECTION);
+      this.board.game.client?.sendMessage(messageTypeEnum.DIRECTION, { direction });
     }
 
     this.board.moves.push(direction);

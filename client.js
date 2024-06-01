@@ -1,18 +1,8 @@
 const WS = require('ws');
 const uuid = require('uuid');
+const { Message, messageTypeEnum } = require('netrisse-lib');
 
 module.exports = class NetrisseClient {
-  messageTypeEnum = Object.freeze({
-    CONNECT: 0,
-    DIRECTION: 1,
-    HOLD: 2,
-    JUNK: 3,
-    PAUSE: 4,
-    QUIT: 5,
-    SEED: 6,
-    UNPAUSE: 7,
-  });
-
   constructor(gameID, server = 'localhost:4752') {
     if (typeof gameID === 'undefined') {
       throw new Error('gameID cannot be undefined!');
@@ -33,16 +23,20 @@ module.exports = class NetrisseClient {
     });
 
     this.ws.on('open', () => {
-      this.sendMessage({ seed }, this.messageTypeEnum.CONNECT);
+      this.sendMessage(messageTypeEnum.CONNECT, { seed });
     });
   }
 
   disconnect() {
-    this.ws.close(4333, JSON.stringify({ type: this.messageTypeEnum.QUIT, playerID: this.playerID, gameID: this.gameID }));
+    this.ws.close(4333, JSON.stringify({ type: messageTypeEnum.QUIT, playerID: this.playerID, gameID: this.gameID }));
   }
 
-  sendMessage(o = {}, type) {
-    this.ws.send(JSON.stringify(Object.assign(o, { type, playerID: this.playerID, gameID: this.gameID })));
-    // check error here
+  sendMessage(type, o) {
+    this.ws.send(new Message(type, this.playerID, this.gameID, o).serialize(),
+      err => {
+        if (err) {
+          throw new Error(err);
+        }
+      });
   }
 };
