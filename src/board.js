@@ -21,7 +21,7 @@ module.exports = class Board {
   linesCleared = 0;
   gameOver = false;
 
-  constructor(top, right, bottom, left, screen, game, seed, playerID) {
+  constructor({ top, right, bottom, left }, screen, game, seed, playerID) {
     this.top = top;
     this.right = right;
     this.bottom = bottom;
@@ -451,7 +451,7 @@ module.exports = class Board {
   resetAutoMoveTimer() {
     if (!this.replay && this.isMainBoard) {
       this.stopAutoMoveTimer();
-      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.interval);
+      this.currentTimeout = setTimeout(this.moveShapeAutomatically.bind(this), this.game.speed);
     }
   }
 

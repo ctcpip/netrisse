@@ -2,29 +2,18 @@ const termkit = require('terminal-kit');
 const packageJSON = require('../package.json');
 
 module.exports = class Screen {
-  constructor(colorEnabled, interval, seed) {
+  constructor(colorEnabled) {
     this.colorEnabled = colorEnabled;
     this.term = termkit.terminal;
     this.term.windowTitle('Netrisse');
     this.screen = new termkit.ScreenBuffer({ dst: this.term, noFill: true });
-    this.seed = seed;
-    this.interval = interval;
-
     this.term.hideCursor();
-
-    if (this.colorEnabled) {
-      this.screen.fill({ attr: { bgColor: 'black' } });
-    }
-    else {
-      this.screen.fill({ attr: { bgDefaultColor: true } });
-    }
-
-    this.d(0, 0, `Netrisse ${packageJSON.version} (C) 2016  Chris de Almeida           "netrisse -h" for more info`);
-
     this.term.grabInput();
+  }
 
-    this.d(24, 19, `Seed:  ${this.seed}`);
-    this.d(24, 20, `Speed: ${this.interval}ms`);
+  showGameInfo(seed, speed) {
+    this.d(24, 19, `Seed:  ${seed}`);
+    this.d(24, 20, `Speed: ${speed}ms`);
 
     this.displayTime();
     this.timeDisplayTimeout = setTimeout(this.displayTime.bind(this), 1000);
@@ -34,16 +23,12 @@ module.exports = class Screen {
  * draw
  */
   d(x, y, content, { color = 'white', bgColor = 'black' } = { color: 'white', bgColor: 'black' }) {
-    if (this.colorEnabled) {
-      this.screen.put({ x, y, attr: { color, bgColor } }, content);
-    }
-    else {
-      this.screen.put({ x, y }, content);
-    }
+    const attr = this.colorEnabled ? { color, bgColor } : {};
+    this.screen.put({ x, y, attr }, content);
   }
 
   render() {
-    this.screen.draw();
+    this.screen.draw({ delta: false });
   }
 
   get(...args) {
@@ -66,5 +51,11 @@ module.exports = class Screen {
     this.d(24, 22, time);
 
     this.render();
+  }
+
+  clear() {
+    const attr = this.colorEnabled ? { bgColor: 'black' } : { bgDefaultColor: true };
+    this.screen.fill({ attr, region: this.writableArea });
+    this.d(0, 0, `Netrisse ${packageJSON.version} (C) 2016  Chris de Almeida           "netrisse -h" for more info`);
   }
 };
