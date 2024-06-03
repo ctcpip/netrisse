@@ -5,8 +5,8 @@ module.exports = class Game {
   boards = [];
   started = false;
 
-  constructor(interval, algorithm, client, currentPlayerID) {
-    this.interval = interval;
+  constructor(speed, algorithm, client, currentPlayerID) {
+    this.speed = speed;
     this.algorithm = algorithm;
     this.client = client;
     this.currentPlayerID = currentPlayerID;

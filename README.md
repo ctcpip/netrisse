@@ -7,7 +7,7 @@ a network version of tetris for the console/terminal
 ## roadmap
 
 * [x] single player mode
-* [ ] two-player networked mode
+* [x] two-player networked mode
 * [ ] three/four player networked mode
 
 ## inspiration

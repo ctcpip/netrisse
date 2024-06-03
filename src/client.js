@@ -18,13 +18,16 @@ module.exports = class NetrisseClient {
   connect(seed) {
     this.ws = new WS(`ws://${this.server}`);
 
-    this.ws.on('error', err => {
-      throw new Error(err); // do something here
-    });
+    const { promise, resolve, reject } = Promise.withResolvers();
+
+    this.ws.on('error', reject);
 
     this.ws.on('open', () => {
       this.sendMessage(messageTypeEnum.CONNECT, { seed });
+      resolve();
     });
+
+    return promise;
   }
 
   disconnect() {
