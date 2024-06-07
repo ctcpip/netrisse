@@ -18,6 +18,7 @@ module.exports = function(screen, seed, intro, mainBoardPosition) {
     switch (name) {
       case '1':
       {
+        screen.term.removeListener('key', keyHandler);
         screen.clear();
         let cursorX = 5;
         let cursorY = 3;
@@ -69,6 +70,7 @@ module.exports = function(screen, seed, intro, mainBoardPosition) {
                 screen.d(cursorX + 4, errorY + 1, err.errors.map(e => e.message), { color: 'brightred' });
                 screen.d(5, errorY + 3, '2) Back  🔙', { color: 'amber' });
                 screen.render();
+                screen.term.on('key', keyHandler);
               });
           });
 
